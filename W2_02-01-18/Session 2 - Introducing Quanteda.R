@@ -11,19 +11,31 @@ rm(list = ls())
 # Set working directory
 setwd(getwd())
 
-# Installs the package "devtools" which is used to install packages directly from Github
+# Install the latest stable version of quanteda from CRAN
+install.packages("quanteda")
+library("quanteda")
+
+# If you want to install the latest dev version, first install the package "devtools" which is used to install packages directly from Github
 install.packages("devtools")
+library("devtools")
+devtools::install_github("quanteda/quanteda") 
 
-# Installs the latest version of Kenneth Benoit's quanteda
-devtools::install_github("kbenoit/quanteda")
 
-# and quantedaData
-devtools::install_github("kbenoit/quantedaData")
+# We also use devtools to install some sample data
+devtools::install_github("quanteda/quanteda.corpora")
 
-# Loading both packages into our environment
-library(quanteda)
-library(quantedaData)
+# Load it into our environment
+library(quanteda.corpora)
 
+# Read about the data available: https://github.com/quanteda/quanteda.corpora
+
+# Note: Quanteda is still under development so it is changing! New features are being added but sometimes functions or function parameters are deprecated or renamed. This includes the very basic functions in this code demo!
+
+# This means that many code examples, StackOverflow questions, and websites with outdated documentation, etc. may include functions or options that have been deprecated or renamed.
+
+# Always check the quanteda version!
+
+# If you want to ensure that your code for a project will not break if you update quanteda, I recommend using a dependency manager for R called packrat so that you can specify a dependency on a specific version of quanteda.
 
 ## 2 Running basic text analysis
 
@@ -32,31 +44,32 @@ sampletxt <- "The police with their policing strategy instituted a policy of gen
 iterations at the Data Science Institute."
 
 # Let's tokenize (break vector into individual words)
-tokens <- tokenize(sampletxt)
-?tokenize
+tokens <- tokens(sampletxt)
+?tokens
 
-tokens <- tokenize(sampletxt, removePunct=TRUE)
+tokens <- tokens(sampletxt, remove_punct = TRUE)
 
 # Stemming examples
+# SnowballC stemmer is based on the Porter stemmer 
 
 stems <- tokens_wordstem(tokens)
 ?tokens_wordstem
 
 # Loading State of the Union corpus
 
-data("SOTUCorpus", package = "quantedaData")
+data("data_corpus_stou", package = "quanteda.corpora")
 
 # ndoc identifies the number of documents in a corpus
 
-ndocs <- ndoc(SOTUCorpus)
+ndocs <- ndoc(data_corpus_stou)
 
 # Here, we identifiy the text of the last SOTU Speech in the corpus
 
-last_speech_text <- SOTUCorpus[ndocs]
+last_speech_text <- data_corpus_stou[ndocs]
 
 # same as 
 
-last_speech_text <- texts(SOTUCorpus)[ndocs]
+last_speech_text <- texts(data_corpus_stou)[ndocs]
 
 # The DFM function creates a Document Feature Matrix from the last SOTU speech
 
@@ -65,7 +78,7 @@ obama_dfm <- dfm(last_speech_text)
 
 # Inspecting the components of a DFM object
 
-str(obama_dfm)
+str(obama_dfm) # You can see this in the RStudio "Environment" pane as well
 
 obama_dfm[1,1:20]
 
@@ -88,8 +101,8 @@ stopwords("english")
 
 # Here we compare a DFM from the last SOTU while without English stopwords with one that has them
 
-obama_dfm1 <- dfm(last_speech_text, removePunct = TRUE)
-obama_dfm2 <- dfm(last_speech_text, remove = stopwords("english"), removePunct = TRUE)
+obama_dfm1 <- dfm(last_speech_text, remove_punct = TRUE)
+obama_dfm2 <- dfm(last_speech_text, remove = stopwords("english"), remove_punct = TRUE)
 
 topfeatures(obama_dfm1)
 topfeatures(obama_dfm2)
@@ -98,7 +111,7 @@ topfeatures(obama_dfm2)
 
 # Now we will create a DFM of all the SOTU speeches
 
-full_dfm <- dfm(SOTUCorpus, remove = stopwords("english"), removePunct = TRUE)
+full_dfm <- dfm(data_corpus_stou, remove = stopwords("english"), remove_punct = TRUE)
 
 topfeatures(full_dfm)
 
