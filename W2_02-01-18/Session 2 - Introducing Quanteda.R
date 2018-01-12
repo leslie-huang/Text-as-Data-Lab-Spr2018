@@ -12,13 +12,13 @@ rm(list = ls())
 setwd(getwd())
 
 # Install the latest stable version of quanteda from CRAN
-install.packages("quanteda")
+# install.packages("quanteda")
 library("quanteda")
 
 # If you want to install the latest dev version, first install the package "devtools" which is used to install packages directly from Github
-install.packages("devtools")
-library("devtools")
-devtools::install_github("quanteda/quanteda") 
+# install.packages("devtools")
+# library("devtools")
+# devtools::install_github("quanteda/quanteda") 
 
 
 # We also use devtools to install some sample data
@@ -117,7 +117,7 @@ topfeatures(full_dfm)
 
 # Visualizing the text contained within the data frame
 
-textplot_wordcloud(full_dfm)
+textplot_wordcloud(full_dfm, comparison.cloud = TRUE)
 
 # tfidf - Frequency weighting
 
@@ -128,7 +128,7 @@ topfeatures(weighted_dfm)
 
 # tfidf - Relative frequency weighting
 
-normalized <- tfidf(full_dfm, normalize=TRUE) # Uses the relative number of terms in each document
+normalized <- tfidf(full_dfm, scheme_tf = "prop") # Uses the relative number of terms in each document
 
 topfeatures(normalized)
 
@@ -139,21 +139,16 @@ topfeatures(normalized)
 
 # bigrams
 
-collocations(last_speech_text)
-?collocations
+textstat_collocations(last_speech_text)
+?textstat_collocations
 
 # trigrams
 
-collocations(last_speech_text, size=3)
+textstat_collocations(last_speech_text, size=3)
 
 # detect collocations in overall
 
-colloc <- collocations(last_speech_text)
-
-
-# remove any collocations containing a word in the stoplist
-
-removeFeatures(colloc, stopwords("english"))
+colloc <- textstat_collocations(last_speech_text)
 
 # Are there any other terms you all think are interesting?
 
@@ -165,14 +160,14 @@ removeFeatures(colloc, stopwords("english"))
 
 ?regex
 
-s_index <- grep(" s ", texts(SOTUCorpus))
+s_index <- grep(" s ", texts(data_corpus_stou))
 
 ?grep
 
-# this returns every speech that contains " s "
-s_texts <- grep(" s ", texts(SOTUCorpus), value=TRUE)
+# this returns every speech that contains " s " -- JUST THE LETTER S BY ITSELF
+texts_with_s <- grep(" s ", texts(data_corpus_stou), value = TRUE)
 
 # Here we create a vector of documents with " s " removed
-no_s <- gsub(" s ", "",  SOTUCorpus[s_index])
+texts_without_s <- gsub(" s ", "",  data_corpus_stou[s_index])
 
 # Questions?
