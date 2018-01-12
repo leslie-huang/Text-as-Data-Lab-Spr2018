@@ -3,6 +3,7 @@
 # Date: 1/25/2018
 # This lab is adapted from Patrick Chester
 
+# Before you start:
 # Download the file "national_clinton_trump_6_20_2016.csv" from the repo
 
 
@@ -19,110 +20,133 @@ rm(list = ls())
 getwd()
 
 # Setting working directory
-setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018")
+setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W1_01-25-18")
 
 # or even
 setwd(getwd())
 
 # 1.3 Installing and loading some useful packages
-install.packages("dplyr")
-install.packages("ggplot2")
-install.packages("xtable")
+# install.packages("dplyr")
+# install.packages("ggplot2")
+# install.packages("xtable")
 
 library(dplyr)
 library(ggplot2)
 library(xtable)
 
+
+libraries <- c("foreign", "stargazer")
+lapply(libraries, require, character.only=TRUE)
+
+
 # 1.4 Loading data
-dat <- read.csv("national_clinton_trump_6_20_2016.csv", stringsAsFactors = FALSE)
+polling_data  <- read.csv("national_clinton_trump_6_20_2016.csv", stringsAsFactors = FALSE)
 
 #######################
 # 2 Working with data #
 #######################
 
-# 2.1 How to extract a vector or a subset of a data frame from a data frame
+# 2.1 How to subset dataframes
 
-# A) Dollar sign operator
-dat$Pollster
+# A) Get column with dollar sign operator
+polling_data$Pollster
 
-# B) Matrix identifier
-dat[,"Pollster"]
-dat[,c("Pollster", "Number.of.Observations")]
+# B) Matrix identifier (colname)
+polling_data[, "Pollster"]
 
-# C) dplyr
-dat %>% select(Pollster)
-dat %>% select(Pollster, Number.of.Observations)
-
-select(dat, Pollster)
-
-# 2.2 How to identify a row (or set of rows) in a data frame
-
-# A) Dollar sign operator
-dat$Number.of.Observations[1] # Returns the first row of the data frame
-dat$Number.of.Observations[1:5] # Returns the first 5 rows of the data frame
-dat$Number.of.Observations[dat$Pollster == "Quinnipiac"] # Returns all rows where Pollster = Quinnipiac
-
-# B) Matrix identifier
-dat[1, "Number.of.Observations"] 
-dat[1:5, "Number.of.Observations"] 
-dat[dat$Pollster == "Quinnipiac","Number.of.Observations"] 
+# This is pretty impossible to read in the console
+View(polling_data[, c("Pollster", "Number.of.Observations")])
 
 # C) dplyr
-dat %>% slice(1) %>% select(Number.of.Observations) 
-dat %>% slice(1:5) %>% select(Number.of.Observations)
-dat %>% filter(Pollster == "Quinnipiac") %>% select(Number.of.Observations)
 
+# Using pipe notation
+polling_data %>% select(Pollster)
+polling_data %>% select(Pollster, Number.of.Observations)
 
-# 2.3 Creating new variables in a data frame
+# Alternative syntax
+select(polling_data, Pollster)
+
+# 2.2 How to locate row(s) in a data frame
 
 # A) Dollar sign operator
-dat$net_clinton_a <- dat$Clinton - dat$Trump
+polling_data$Number.of.Observations[1] # Returns the first row of the data frame
+
+polling_data$Number.of.Observations[1:5] # Returns the first 5 rows of the data frame
+
+polling_data$Number.of.Observations[polling_data$Pollster == "Quinnipiac"] # Returns all rows where Pollster = Quinnipiac
+
+# B) Column name
+polling_data[1, "Number.of.Observations"] 
+polling_data[1:5, "Number.of.Observations"] 
+polling_data[polling_data$Pollster == "Quinnipiac","Number.of.Observations"] 
+
+# C) dplyr
+# Pipe syntax
+polling_data %>% slice(1) %>% select(Number.of.Observations) 
+polling_data %>% slice(1:5) %>% select(Number.of.Observations)
+polling_data %>% filter(Pollster == "Quinnipiac") %>% select(Number.of.Observations)
+
+# Alternate syntax
+
+select(filter(polling_data, Pollster == "Quinnipiac"), Number.of.Observations)
+
+# 2.3 Creating new variables (columns) in a data frame
+
+# A) Dollar sign operator
+polling_data$net_clinton_a  <- polling_data$Clinton - polling_data$Trump
 
 # B) Matrix identifier
-dat[,"net_clinton_b"] <- dat$Clinton - dat$Trump
+polling_data[, "net_clinton_b"]  <- polling_data$Clinton - polling_data$Trump
 
 
 # C) dplyr
-dat <- dat %>% mutate(
-  net_clinton_c = Clinton - Trump
-)
+# Pipe syntax
+polling_data  <- polling_data %>% mutate(net_clinton_c = Clinton - Trump)
 
-dat <- mutate(dat, net_clinton_d = Clinton - Trump)
+# Alternate syntax
+polling_data  <- mutate(polling_data, net_clinton_d = Clinton - Trump)
 
 # Are these variables equivalent to one another?
-all.equal(dat$net_clinton_a,dat$net_clinton_b)  
-all.equal(dat$net_clinton_b,dat$net_clinton_c) 
-all.equal(dat$net_clinton_c,dat$net_clinton_d)  
+all.equal(polling_data$net_clinton_a,polling_data$net_clinton_b)  
+all.equal(polling_data$net_clinton_b,polling_data$net_clinton_c) 
+all.equal(polling_data$net_clinton_c,polling_data$net_clinton_d)  
 
 # Yes. Yes they are.
 
 # 2.4 Removing columns
-dat$net_clinton_b <- NULL
+polling_data$net_clinton_b  <- NULL
 
 # Using dplyr
-dat <- subset(dat, select = -c(net_clinton_d))
+polling_data  <- subset(polling_data, select = -c(net_clinton_d))
 
 # 2.5 Summarizing Data
 
-# A) Identifying the number of rows and columns
-nrow(dat)
-ncol(dat)
+# A) Identifying the number of rows and columns and getting their names
+nrow(polling_data)
+ncol(polling_data)
+
+colnames(polling_data)
+rownames(polling_data) # no row names were set
 
 # B) Getting a quick summary of your data
-summary(dat)
-str(dat)
-glimpse(dat)
+summary(polling_data)
+
+str(polling_data) # Structure not string!
+
+glimpse(polling_data)
 
 # C) Summarizing variables by another variable in a table
-table1 <- dat %>% group_by(Pollster) %>% summarise(mean(net_clinton_a))
+table1  <- polling_data %>% group_by(Pollster) %>% summarise(mean(net_clinton_a))
+
+View(table1)
 
 # D) Summarizing a variable with a histogram
 
 # Basic R graphics
-hist(dat$net_clinton_a)
+hist(polling_data$net_clinton_a)
 
 # ggplot2 graphics
-plot1 <- ggplot(aes(net_clinton_a), data = dat) + geom_histogram(bins = 15) + theme_light()
+plot1  <- ggplot(aes(net_clinton_a), data = polling_data) + geom_histogram(bins = 15) + theme_light()
 
 # 2.6 Exporting data
 
@@ -132,42 +156,66 @@ write.csv(table1,file = "table1.csv")
 # Creating LaTeX table
 xtable(table1,caption = "Average Clinton Polling Advantage by Polling Firm")
 
+stargazer(table1)
+
 # Exporting graph to pdf
 pdf(width = 4, height = 3, "plot1.pdf")
 plot1
 dev.off()
 
 #########################
-# 3 Advanced Operations #
+# 3 Control flow and functions #
 #########################
 
 # 3.1 For Loops
-char.var <- c() # A container for variable names that contain characters
 
-for(i in names(dat)){ # A loop that identifies and stores variables that contain characters
-  if(is.character(dat[,i])){
-    char.var <- c(char.var, i)
+for(i in names(polling_data)){ # A loop that identifies and stores variables that contain characters
+  if(is.character(polling_data[, i]) ) {
     print(i)
   }
 }
 
+# Python users: R cannot return multiple values from a function -- you will have to return a list of the values you want to return. There is also no equivalent to "yield"  
+
+
 # 3.2 Apply functions
-names(dat) <- sapply(names(dat), function(i){
+
+names(polling_data)  <- sapply(names(polling_data), function(i) {
   gsub("\\.", "_", i) # Replaces all instances of "." with an "_"
   gsub("__", "_", i) # Replaces all instances of "__" with "_"
-})
+} )
+
+
+# Python users: The function passed to sapply() is the equivalent of a lambda function
 
 # 3.3 User written functions
-abs.dist.fun<-function(vec1, vec2){ # Calculates the absolute distance between two vectors
+
+# Calculates the absolute distance between two vectors
+calculate_abs_distance <- function(vec1, vec2) { 
   sqrt(sum(abs(vec1 - vec2)))
 }
 
-# Python users: R cannot return multiple values from a function -- you will have to return a list of the values you want to return. There is also no equivalent to "yield"  
 
-x <- rnorm(10) # Creates a vector of random normally distributed numbers
-y <- x*2 + 3
+x  <- rnorm(10) # Creates a vector of random normally distributed numbers
+y  <- x*2 + 3
 
-abs.dist.fun(x,y)
+calculate_abs_distance(x,y)
+
+#########################
+# 4 Finishing up #
+#########################
+
+
+# 4.1 Save workspace after running it -- all objects, functions, etc  (e.g. if you have run something computationally intensive and want to save the object for later use)
+# Similar to pickle() in Python
+
+save.image("workspace.RData")
+
+# 4.2 Pick up where you left off later
+
+rm(list = ls())
+
+load("workspace.RData")
 
 ####################
 # 4 Free Resources #
@@ -182,5 +230,5 @@ abs.dist.fun(x,y)
 # Data Camp
 # https://www.datacamp.com/
 
-# Also, don't forget Google and Stackoverflow!
+# If you have a question, it's probably been asked before on StackOverflow/StackExchange!
 
