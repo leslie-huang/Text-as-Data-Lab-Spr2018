@@ -1,7 +1,7 @@
-# TA: Patrick Chester
+# TA: Leslie Huang
 # Course: Text as Data
-# Date: 1/24/2017
-# Code Credit: Kevin Munger
+# Date: 02/01/2018
+# Code Credit: Patrick Chester, Kevin Munger
 
 ## 1 Setting up Quanteda 
 
@@ -9,7 +9,7 @@
 rm(list = ls())
 
 # Set working directory
-setwd("E:/Documents/Word saves/NYU/NYU Classes/2017 - Spring/Text as Data - TA/TA Data")
+setwd(getwd())
 
 # Installs the package "devtools" which is used to install packages directly from Github
 install.packages("devtools")
