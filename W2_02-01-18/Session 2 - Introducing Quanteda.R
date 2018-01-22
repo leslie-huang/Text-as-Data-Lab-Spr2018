@@ -15,13 +15,16 @@ setwd(getwd())
 # install.packages("quanteda")
 library("quanteda")
 
-# If you want to install the latest dev version, first install the package "devtools" which is used to install packages directly from Github
+# What version of quanteda do you have and how many threads (cores) are you using? See the printout in the console
+
+# Install the package "devtools" which is used to install packages directly from Github
 # install.packages("devtools")
-# library("devtools")
+library("devtools")
+
+# If you want to install the latest dev version of quanteda, it's on quanteda, but we will use the latest version from CRAN for stability/sanity reasons
 # devtools::install_github("quanteda/quanteda") 
 
-
-# We also use devtools to install some sample data
+# Use devtools to install some sample data
 devtools::install_github("quanteda/quanteda.corpora")
 
 # Load it into our environment
