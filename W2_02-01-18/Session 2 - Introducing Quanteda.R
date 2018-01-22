@@ -3,7 +3,9 @@
 # Date: 02/01/2018
 # Code Credit: Patrick Chester, Kevin Munger
 
-## 1 Setting up Quanteda 
+## 1 Setting up
+
+# 1.1 Workspace setup
 
 # Clear Global Environment
 rm(list = ls())
@@ -11,18 +13,19 @@ rm(list = ls())
 # Set working directory
 setwd(getwd())
 
+# 1.2 Installing quanteda
+
 # Install the latest stable version of quanteda from CRAN
 # install.packages("quanteda")
 library("quanteda")
 
 # What version of quanteda do you have and how many threads (cores) are you using? See the printout in the console
 
+# 1.3 Devtools and the quanteda corpus
+
 # Install the package "devtools" which is used to install packages directly from Github
 # install.packages("devtools")
 library("devtools")
-
-# If you want to install the latest dev version of quanteda, it's on quanteda, but we will use the latest version from CRAN for stability/sanity reasons
-# devtools::install_github("quanteda/quanteda") 
 
 # Use devtools to install some sample data
 devtools::install_github("quanteda/quanteda.corpora")
@@ -32,13 +35,25 @@ library(quanteda.corpora)
 
 # Read about the data available: https://github.com/quanteda/quanteda.corpora
 
-# Note: Quanteda is still under development so it is changing! New features are being added but sometimes functions or function parameters are deprecated or renamed. This includes the very basic functions in this code demo!
+### Note: Quanteda is still under development so it is changing! New features are being added but sometimes functions or function parameters are deprecated or renamed. This includes the very basic functions in this code demo!
 
-# This means that many code examples, StackOverflow questions, and websites with outdated documentation, etc. may include functions or options that have been deprecated or renamed.
+# This means that you may encounter many code examples, StackOverflow questions, and websites with outdated documentation, etc. that include functions or options that have been deprecated or renamed.
 
-# Always check the quanteda version!
+# 1.4 Managing dependencies
 
 # If you want to ensure that your code for a project will not break if you update quanteda, I recommend using a dependency manager for R called packrat so that you can specify a dependency on a specific version of quanteda.
+# Find out about setting up packrat here: https://rstudio.github.io/packrat/walkthrough.html
+
+# 1.5 Versions of quanteda
+
+# How would you get an older version of quanteda? (For example, if you accidentally installed the dev version from GitHub but you want to go back to the last stable release.)
+
+# If you want to install the latest dev version of quanteda, it's on quanteda, but we will use the latest version from CRAN for stability/sanity reasons
+# devtools::install_github("quanteda/quanteda") 
+
+# - Check the CRAN archive
+# use the install_packages function
+# devtools::install_packages("quanteda", version = "0.98.1", repos = "http://cran.us.r-project.org")
 
 ## 2 Running basic text analysis
 
