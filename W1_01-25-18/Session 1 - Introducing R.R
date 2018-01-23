@@ -34,12 +34,19 @@ library(dplyr)
 library(ggplot2)
 library(xtable)
 
-
+# Loading multiple packages
 libraries <- c("foreign", "stargazer")
 lapply(libraries, require, character.only=TRUE)
 
 
-# 1.4 Loading data
+# 1.5 Managing dependencies
+
+# If you want to ensure that your code will run with specific package dependencies, I recommend using a dependency manager for R called packrat so that you can specify which version of libraries that you use.
+# Find out about setting up packrat here: https://rstudio.github.io/packrat/walkthrough.html
+
+# For R packages that are actively being developed, functions and function names can change and this can break your code if you update the package but not your code! (More about this next week.)
+
+# 1.5 Loading data
 polling_data  <- read.csv("national_clinton_trump_6_20_2016.csv", stringsAsFactors = FALSE)
 
 #######################
@@ -58,6 +65,9 @@ polling_data[, "Pollster"]
 View(polling_data[, c("Pollster", "Number.of.Observations")])
 
 # C) dplyr
+
+# dplyr is a very powerful package with intuitive commands for subsetting, selecting, and transforming your data
+# Read about it here: https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html
 
 # Using pipe notation
 polling_data %>% select(Pollster)
@@ -211,7 +221,7 @@ calculate_abs_distance(x,y)
 
 save.image("workspace.RData")
 
-# 4.2 Pick up where you left off later
+# 4.2 Pick up where you left off later (but note that the workspace does not include packages. You need packrat for that; see next week.)
 
 rm(list = ls())
 
@@ -229,6 +239,9 @@ load("workspace.RData")
 
 # Data Camp
 # https://www.datacamp.com/
+
+# Swirl
+# http://swirlstats.com/
 
 # If you have a question, it's probably been asked before on StackOverflow/StackExchange!
 
