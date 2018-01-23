@@ -1,11 +1,11 @@
 # TA: Leslie Huang
 # Course: Text as Data
 # Date: 02/01/2018
-# Code Credit: Patrick Chester, Kevin Munger
+# Credit for previous versions of code: Patrick Chester, Kevin Munger
 
 ## 1 Setting up
 
-# 1.1 Workspace setup
+# 1.1 Workspace
 
 # Clear Global Environment
 rm(list = ls())
@@ -52,8 +52,9 @@ library(quanteda.corpora)
 # devtools::install_github("quanteda/quanteda") 
 
 # - Check the CRAN archive
-# use the install_packages function
-# devtools::install_packages("quanteda", version = "0.98.1", repos = "http://cran.us.r-project.org")
+# use the install_version function, e.g.:
+# devtools::install_version("quanteda", version = "0.99.12", repos = "http://cran.us.r-project.org")
+
 
 ## 2 Running basic text analysis
 
