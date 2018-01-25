@@ -224,7 +224,7 @@ calculate_abs_distance(x,y)
 
 save.image("workspace.RData")
 
-# 4.2 Pick up where you left off later (but note that the workspace does not include packages. You need packrat for that; see next week.)
+# 4.2 Pick up where you left off (but note that the workspace does not include packages. You need packrat for that)
 
 rm(list = ls())
 
