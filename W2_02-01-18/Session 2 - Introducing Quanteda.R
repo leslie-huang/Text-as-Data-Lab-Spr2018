@@ -1,7 +1,7 @@
 # TA: Leslie Huang
 # Course: Text as Data
 # Date: 02/01/2018
-# Credit for previous versions of code: Patrick Chester, Kevin Munger
+# Code originally from: Patrick Chester, Kevin Munger; updated by Leslie Huang
 
 ## 1 Setting up
 
@@ -28,7 +28,7 @@ library("quanteda")
 library("devtools")
 
 # Use devtools to install some sample data
-devtools::install_github("quanteda/quanteda.corpora")
+# devtools::install_github("quanteda/quanteda.corpora")
 
 # Load it into our environment
 library(quanteda.corpora)
@@ -48,13 +48,12 @@ library(quanteda.corpora)
 
 # How would you get an older version of quanteda? (For example, if you accidentally installed the dev version from GitHub but you want to go back to the last stable release.)
 
-# If you want to install the latest dev version of quanteda, it's on quanteda, but we will use the latest version from CRAN for stability/sanity reasons
-# devtools::install_github("quanteda/quanteda") 
-
 # - Check the CRAN archive
 # use the install_version function, e.g.:
 # devtools::install_version("quanteda", version = "0.99.12", repos = "http://cran.us.r-project.org")
 
+# If you want to install the latest dev version of quanteda, it's on GitHub, but we will use the latest version from CRAN for stability/sanity reasons
+# devtools::install_github("quanteda/quanteda") 
 
 ## 2 Running basic text analysis
 
@@ -90,7 +89,8 @@ last_speech_text <- data_corpus_stou[ndocs]
 
 last_speech_text <- texts(data_corpus_stou)[ndocs]
 
-# The DFM function creates a Document Feature Matrix from the last SOTU speech
+## The DFM function creates a Document Feature Matrix from a document, corpus, etc
+# in this case, from the last SOTU speech
 
 obama_dfm <- dfm(last_speech_text)
 ?dfm
@@ -106,8 +106,10 @@ obama_dfm[1,1:20]
 topfeatures(obama_dfm)
 
 # Are all of these features relevant?
+# Words?
+# Punctuation
 
-# Stopwords
+## Stopwords
 
 # Stopwords are commonly used words that add little understanding to the content of the document by themselves
 
@@ -134,9 +136,17 @@ full_dfm <- dfm(data_corpus_stou, remove = stopwords("english"), remove_punct = 
 
 topfeatures(full_dfm)
 
-# Visualizing the text contained within the data frame
+# Visualizing the text contained within the DFM(s)
 
-textplot_wordcloud(full_dfm, comparison.cloud = TRUE)
+# Dominated by stopwords
+textplot_wordcloud(obama_dfm1)
+
+# Stopwords removed
+textplot_wordcloud(obama_dfm2)
+
+# Over all the SOTUs
+
+textplot_wordcloud(full_dfm, max.words = 200)
 
 # tfidf - Frequency weighting
 
