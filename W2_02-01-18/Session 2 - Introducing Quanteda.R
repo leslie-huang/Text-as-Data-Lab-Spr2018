@@ -73,6 +73,7 @@ tokens <- tokens(sampletxt, remove_punct = TRUE)
 # type
 # feature
 # word
+# term
 
 # 2.2 Stemming examples
 # SnowballC stemmer is based on the Porter stemmer 
