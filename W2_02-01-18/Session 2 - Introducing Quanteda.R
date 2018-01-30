@@ -16,7 +16,7 @@ setwd(getwd())
 # 1.2 Installing quanteda
 
 # Install the latest stable version of quanteda from CRAN
-# install.packages("quanteda")
+# install.packages("quanteda") # run this if you don't have quanteda already installed
 library("quanteda")
 
 # What version of quanteda do you have and how many threads (cores) are you using? See the printout in the console
@@ -41,7 +41,7 @@ library(quanteda.corpora)
 
 # 1.4 Managing dependencies
 
-# If you want to ensure that your code for a project will not break if you update quanteda, I recommend using a dependency manager for R called packrat so that you can specify a dependency on a specific version of quanteda.
+# If you want to ensure that your code for a project will not break when you update quanteda, I recommend using a dependency manager for R called packrat so that you can specify a dependency on a specific version of quanteda.
 # Find out about setting up packrat here: https://rstudio.github.io/packrat/walkthrough.html
 
 # 1.5 Versions of quanteda
@@ -52,7 +52,7 @@ library(quanteda.corpora)
 # use the install_version function, e.g.:
 # devtools::install_version("quanteda", version = "0.99.12", repos = "http://cran.us.r-project.org")
 
-# If you want to install the latest dev version of quanteda, it's on GitHub, but we will use the latest version from CRAN for stability/sanity reasons
+# If you want the latest dev version of quanteda, it's on GitHub, but we will use the latest version from CRAN for stability/sanity reasons
 # devtools::install_github("quanteda/quanteda") 
 
 ## 2 Running basic text analysis
@@ -81,7 +81,7 @@ data("data_corpus_stou", package = "quanteda.corpora")
 
 ndocs <- ndoc(data_corpus_stou)
 
-# Here, we identifiy the text of the last SOTU Speech in the corpus
+# Here, we grab the text of the last SOTU Speech in the corpus
 
 last_speech_text <- data_corpus_stou[ndocs]
 
@@ -94,6 +94,8 @@ last_speech_text <- texts(data_corpus_stou)[ndocs]
 
 obama_dfm <- dfm(last_speech_text)
 ?dfm
+
+# What pre-processing options were used?
 
 # Inspecting the components of a DFM object
 
@@ -149,6 +151,8 @@ textplot_wordcloud(obama_dfm2)
 textplot_wordcloud(full_dfm, max.words = 200)
 
 # tfidf - Frequency weighting
+
+# Concept check: How is the tf calculated? How is the idf calculated?
 
 weighted_dfm <- tfidf(full_dfm) # Uses the absolute frequency of terms in each document
 
