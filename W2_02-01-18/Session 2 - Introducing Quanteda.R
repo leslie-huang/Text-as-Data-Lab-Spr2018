@@ -19,7 +19,8 @@ setwd(getwd())
 # install.packages("quanteda") # run this if you don't have quanteda already installed
 library("quanteda")
 
-# What version of quanteda do you have and how many threads (cores) are you using? See the printout in the console
+# What version of quanteda do you have loaded? 
+# How many threads (cores) are you using? See the printout in the console
 
 # 1.3 Devtools and the quanteda corpus
 
@@ -61,7 +62,7 @@ library(quanteda.corpora)
 sampletxt <- "The police with their policing strategy instituted a policy of general 
 iterations at the Data Science Institute."
 
-# Let's tokenize (break vector into individual words)
+# 2.1 Let's tokenize (break vector into individual words)
 tokens <- tokens(sampletxt)
 ?tokens
 
@@ -73,13 +74,13 @@ tokens <- tokens(sampletxt, remove_punct = TRUE)
 # feature
 # word
 
-# Stemming examples
+# 2.2 Stemming examples
 # SnowballC stemmer is based on the Porter stemmer 
 
 stems <- tokens_wordstem(tokens)
 ?tokens_wordstem
 
-# Loading State of the Union corpus
+# 2.3 Loading State of the Union corpus
 
 data("data_corpus_stou", package = "quanteda.corpora")
 
@@ -95,7 +96,7 @@ last_speech_text <- data_corpus_stou[ndocs]
 
 last_speech_text <- texts(data_corpus_stou)[ndocs]
 
-## The DFM function creates a Document Feature Matrix from a document, corpus, etc
+## 2.4 The DFM function creates a Document Feature Matrix from a document, corpus, etc
 # in this case, from the last SOTU speech
 
 obama_dfm <- dfm(last_speech_text)
@@ -117,7 +118,7 @@ topfeatures(obama_dfm)
 # Words?
 # Punctuation
 
-## Stopwords
+## 2.5 Stopwords
 
 # Stopwords are commonly used words that add little understanding to the content of the document by themselves
 
@@ -144,7 +145,7 @@ full_dfm <- dfm(data_corpus_stou, remove = stopwords("english"), remove_punct = 
 
 topfeatures(full_dfm)
 
-# Visualizing the text contained within the DFM(s)
+# 3.1 Visualizing the text contained within the DFM(s)
 
 # Dominated by stopwords
 textplot_wordcloud(obama_dfm1)
@@ -156,7 +157,7 @@ textplot_wordcloud(obama_dfm2)
 
 textplot_wordcloud(full_dfm, max.words = 200)
 
-# tfidf - Frequency weighting
+# 3.2 tfidf - Frequency weighting
 
 # Concept check: How is the tf calculated? How is the idf calculated?
 
