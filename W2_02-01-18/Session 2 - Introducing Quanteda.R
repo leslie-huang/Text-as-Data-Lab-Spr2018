@@ -215,12 +215,22 @@ texts_without_s <- gsub(" s ", "",  data_corpus_stou[s_index])
 
 library("preText")
 
-# Run at home (computing time is longish)
+# Run at home (takes a few minutes to run)
+# Example below taken from preText vignette: https://cran.r-project.org/web/packages/preText/vignettes/getting_started_with_preText.html
 
 preprocessed_documents <- factorial_preprocessing(
                           data_corpus_stou,
                           use_ngrams = FALSE,
                           infrequent_term_threshold = 0.2,
                           verbose = FALSE)
+
+preText_results <- preText(
+                            preprocessed_documents,
+                            dataset_name = "SOTU Speeches",
+                            distance_method = "cosine",
+                            num_comparisons = 20,
+                            verbose = FALSE)
+
+preText_score_plot(preText_results)
 
 # Questions?
