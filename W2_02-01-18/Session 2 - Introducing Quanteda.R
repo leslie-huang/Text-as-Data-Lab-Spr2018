@@ -1,7 +1,7 @@
 # TA: Leslie Huang
 # Course: Text as Data
 # Date: 02/01/2018
-# Code originally from: Patrick Chester, Kevin Munger; updated and augmented by Leslie Huang
+# Code originally from: Patrick Chester, Kevin Munger; updated and expanded by Leslie Huang
 
 ## 1 Setting up
 
@@ -48,7 +48,7 @@ library(quanteda.corpora)
 
 # 1.5 Versions of quanteda
 
-# How would you get an older version of quanteda? (For example, if you accidentally installed the dev version from GitHub but you want to go back to the last stable release.)
+# How would you get an older version of quanteda? (For example, if you accidentally installed the dev version from GitHub but you want to go back to the last stable release, or you want a legacy version to support old code.)
 
 # - Check the CRAN archive
 # use the install_version function, e.g.:
@@ -106,6 +106,10 @@ obama_dfm <- dfm(last_speech_text)
 ?dfm
 
 # What pre-processing options were used?
+
+# if we wanted to stem the dfm of Obama's speech
+
+dfm_wordstem(obama_dfm)
 
 # Inspecting the components of a DFM object
 
