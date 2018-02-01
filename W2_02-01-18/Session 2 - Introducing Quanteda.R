@@ -1,7 +1,7 @@
 # TA: Leslie Huang
 # Course: Text as Data
 # Date: 02/01/2018
-# Code originally from: Patrick Chester, Kevin Munger; updated by Leslie Huang
+# Code originally from: Patrick Chester, Kevin Munger; updated and augmented by Leslie Huang
 
 ## 1 Setting up
 
@@ -17,6 +17,7 @@ setwd(getwd())
 
 # Install the latest stable version of quanteda from CRAN
 # install.packages("quanteda") # run this if you don't have quanteda already installed
+
 library("quanteda")
 
 # What version of quanteda do you have loaded? 
@@ -56,6 +57,7 @@ library(quanteda.corpora)
 # If you want the latest dev version of quanteda, it's on GitHub, but we will use the latest version from CRAN for stability/sanity reasons
 # devtools::install_github("quanteda/quanteda") 
 
+
 ## 2 Running basic text analysis
 
 # start with a short character vector
@@ -63,10 +65,10 @@ sampletxt <- "The police with their policing strategy instituted a policy of gen
 iterations at the Data Science Institute."
 
 # 2.1 Let's tokenize (break vector into individual words)
-tokens <- tokens(sampletxt)
+tokenized_text <- tokens(sampletxt)
 ?tokens
 
-tokens <- tokens(sampletxt, remove_punct = TRUE)
+tokenized_text <- tokens(sampletxt, remove_punct = TRUE)
 
 # Concept review: Which of these are the same?
 # token
@@ -78,7 +80,7 @@ tokens <- tokens(sampletxt, remove_punct = TRUE)
 # 2.2 Stemming examples
 # SnowballC stemmer is based on the Porter stemmer 
 
-stems <- tokens_wordstem(tokens)
+stems <- tokens_wordstem(tokenized_text)
 ?tokens_wordstem
 
 # 2.3 Loading State of the Union corpus
@@ -89,13 +91,13 @@ data("data_corpus_stou", package = "quanteda.corpora")
 
 ndocs <- ndoc(data_corpus_stou)
 
-# Here, we grab the text of the last SOTU Speech in the corpus
+# Here, we grab the text of Obama's 2016 speech
 
-last_speech_text <- data_corpus_stou[ndocs]
+last_speech_text <- data_corpus_stou[ndocs - 1]
 
 # same as 
 
-last_speech_text <- texts(data_corpus_stou)[ndocs]
+last_speech_text <- texts(data_corpus_stou)[ndocs - 1]
 
 ## 2.4 The DFM function creates a Document Feature Matrix from a document, corpus, etc
 # in this case, from the last SOTU speech
@@ -132,11 +134,11 @@ stopwords("english")
 
 # Here we compare a DFM from the last SOTU while without English stopwords with one that has them
 
-obama_dfm1 <- dfm(last_speech_text, remove_punct = TRUE)
-obama_dfm2 <- dfm(last_speech_text, remove = stopwords("english"), remove_punct = TRUE)
+obama_dfm_no_preprocessing <- dfm(last_speech_text, remove_punct = TRUE)
+obama_dfm_pre_processed <- dfm(last_speech_text, remove = stopwords("english"), remove_punct = TRUE)
 
-topfeatures(obama_dfm1)
-topfeatures(obama_dfm2)
+topfeatures(obama_dfm_no_preprocessing)
+topfeatures(obama_dfm_pre_processed)
 
 ## 3 Visualization and Weighted DFM
 
@@ -149,18 +151,16 @@ topfeatures(full_dfm)
 # 3.1 Visualizing the text contained within the DFM(s)
 
 # Dominated by stopwords
-textplot_wordcloud(obama_dfm1)
+textplot_wordcloud(obama_dfm_no_preprocessing, max.words = 200)
 
 # Stopwords removed
-textplot_wordcloud(obama_dfm2)
+textplot_wordcloud(obama_dfm_pre_processed, max.words = 200)
 
 # Over all the SOTUs
 
 textplot_wordcloud(full_dfm, max.words = 200)
 
 # 3.2 tfidf - Frequency weighting
-
-# Concept check: How is the tf calculated? How is the idf calculated?
 
 weighted_dfm <- tfidf(full_dfm) # Uses the absolute frequency of terms in each document
 
@@ -169,7 +169,7 @@ topfeatures(weighted_dfm)
 
 # tfidf - Relative frequency weighting
 
-normalized <- tfidf(full_dfm, scheme_tf = "prop") # Uses the relative number of terms in each document
+normalized <- tfidf(full_dfm, scheme_tf = "prop") # Uses feature proportions within documents: divdes each term by the total count of features in the document
 
 topfeatures(normalized)
 
@@ -185,11 +185,7 @@ textstat_collocations(last_speech_text)
 
 # trigrams
 
-textstat_collocations(last_speech_text, size=3)
-
-# detect collocations in overall
-
-colloc <- textstat_collocations(last_speech_text)
+textstat_collocations(last_speech_text, size = 3)
 
 # Are there any other terms you all think are interesting?
 
@@ -210,5 +206,21 @@ texts_with_s <- grep(" s ", texts(data_corpus_stou), value = TRUE)
 
 # Here we create a vector of documents with " s " removed
 texts_without_s <- gsub(" s ", "",  data_corpus_stou[s_index])
+
+# What's the difference between grep and gsub?
+
+## 6 Preprocessing choices
+
+# install.packages("preText")
+
+library("preText")
+
+# Run at home (computing time is longish)
+
+preprocessed_documents <- factorial_preprocessing(
+                          data_corpus_stou,
+                          use_ngrams = FALSE,
+                          infrequent_term_threshold = 0.2,
+                          verbose = FALSE)
 
 # Questions?
