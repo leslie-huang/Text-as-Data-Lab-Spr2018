@@ -16,7 +16,7 @@ setwd(getwd())
 # 1.2 Installing quanteda
 
 # Install the latest stable version of quanteda from CRAN
-# install.packages("quanteda") # run this if you don't have quanteda already installed
+install.packages("quanteda") # run this if you don't have quanteda already installed
 
 library("quanteda")
 
@@ -30,7 +30,7 @@ library("quanteda")
 library("devtools")
 
 # Use devtools to install some sample data
-# devtools::install_github("quanteda/quanteda.corpora")
+devtools::install_github("quanteda/quanteda.corpora")
 
 # Load it into our environment
 library(quanteda.corpora)
@@ -85,24 +85,24 @@ stems <- tokens_wordstem(tokenized_text)
 
 # 2.3 Loading State of the Union corpus
 
-data("data_corpus_stou", package = "quanteda.corpora")
+data("data_corpus_sotu", package = "quanteda.corpora")
 
 # ndoc identifies the number of documents in a corpus
 
-ndocs <- ndoc(data_corpus_stou)
+ndocs <- ndoc(data_corpus_sotu)
 
 # Here, we grab the text of Obama's 2016 speech
 
-last_speech_text <- data_corpus_stou[ndocs - 1]
+last_speech_text <- data_corpus_sotu[ndocs - 2]
 
 # same as 
 
-last_speech_text <- texts(data_corpus_stou)[ndocs - 1]
+last_speech_text <- texts(data_corpus_sotu)[ndocs - 2]
 
 ## 2.4 The DFM function creates a Document Feature Matrix from a document, corpus, etc
 # in this case, from the last SOTU speech
 
-obama_dfm <- dfm(last_speech_text)
+obama_dfm <- dfm(last_speech_text, stem = TRUE)
 ?dfm
 
 # What pre-processing options were used?
@@ -148,7 +148,7 @@ topfeatures(obama_dfm_pre_processed)
 
 # Now we will create a DFM of all the SOTU speeches
 
-full_dfm <- dfm(data_corpus_stou, remove = stopwords("english"), remove_punct = TRUE)
+full_dfm <- dfm(data_corpus_sotu, remove = stopwords("english"), remove_punct = TRUE)
 
 topfeatures(full_dfm)
 
@@ -166,14 +166,14 @@ textplot_wordcloud(full_dfm, max.words = 200)
 
 # 3.2 tfidf - Frequency weighting
 
-weighted_dfm <- tfidf(full_dfm) # Uses the absolute frequency of terms in each document
+weighted_dfm <- dfm_tfidf(full_dfm) # Uses the absolute frequency of terms in each document
 
 topfeatures(weighted_dfm)
 ?tfidf
 
 # tfidf - Relative frequency weighting
 
-normalized <- tfidf(full_dfm, scheme_tf = "prop") # Uses feature proportions within documents: divdes each term by the total count of features in the document
+normalized <- dfm_tfidf(full_dfm, scheme_tf = "prop") # Uses feature proportions within documents: divdes each term by the total count of features in the document
 
 topfeatures(normalized)
 
@@ -201,15 +201,15 @@ textstat_collocations(last_speech_text, size = 3)
 
 ?regex
 
-s_index <- grep(" s ", texts(data_corpus_stou))
+s_index <- grep(" s ", texts(data_corpus_sotu))
 
 ?grep
 
 # this returns every speech that contains " s " -- JUST THE LETTER S BY ITSELF
-texts_with_s <- grep(" s ", texts(data_corpus_stou), value = TRUE)
+texts_with_s <- grep(" s ", texts(data_corpus_sotu), value = TRUE)
 
 # Here we create a vector of documents with " s " removed
-texts_without_s <- gsub(" s ", "",  data_corpus_stou[s_index])
+texts_without_s <- gsub(" s ", "",  data_corpus_sotu[s_index])
 
 # What's the difference between grep and gsub?
 
@@ -223,7 +223,7 @@ library("preText")
 # Example below taken from preText vignette: https://cran.r-project.org/web/packages/preText/vignettes/getting_started_with_preText.html
 
 preprocessed_documents <- factorial_preprocessing(
-                          data_corpus_stou,
+                          data_corpus_sotu,
                           use_ngrams = FALSE,
                           infrequent_term_threshold = 0.2,
                           verbose = FALSE)
