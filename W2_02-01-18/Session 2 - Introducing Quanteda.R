@@ -93,16 +93,16 @@ ndocs <- ndoc(data_corpus_sotu)
 
 # Here, we grab the text of Obama's 2016 speech
 
-last_speech_text <- data_corpus_sotu[ndocs - 2]
+obama_2016_sotu <- data_corpus_sotu[ndocs - 2]
 
 # same as 
 
-last_speech_text <- texts(data_corpus_sotu)[ndocs - 2]
+obama_2016_sotu <- texts(data_corpus_sotu)[ndocs - 2]
 
 ## 2.4 The DFM function creates a Document Feature Matrix from a document, corpus, etc
-# in this case, from the last SOTU speech
+# in this case, from the 2016 speech
 
-obama_dfm <- dfm(last_speech_text, stem = TRUE)
+obama_dfm <- dfm(obama_2016_sotu, stem = TRUE)
 ?dfm
 
 # What pre-processing options were used?
@@ -138,8 +138,8 @@ stopwords("english")
 
 # Here we compare a DFM from the last SOTU while without English stopwords with one that has them
 
-obama_dfm_no_preprocessing <- dfm(last_speech_text, remove_punct = TRUE)
-obama_dfm_pre_processed <- dfm(last_speech_text, remove = stopwords("english"), remove_punct = TRUE)
+obama_dfm_no_preprocessing <- dfm(obama_2016_sotu, remove_punct = TRUE)
+obama_dfm_pre_processed <- dfm(obama_2016_sotu, remove = stopwords("english"), remove_punct = TRUE)
 
 topfeatures(obama_dfm_no_preprocessing)
 topfeatures(obama_dfm_pre_processed)
@@ -184,12 +184,12 @@ topfeatures(normalized)
 
 # bigrams
 
-textstat_collocations(last_speech_text)
+textstat_collocations(obama_2016_sotu)
 ?textstat_collocations
 
 # trigrams
 
-textstat_collocations(last_speech_text, size = 3)
+textstat_collocations(obama_2016_sotu, size = 3)
 
 # Are there any other terms you all think are interesting?
 
