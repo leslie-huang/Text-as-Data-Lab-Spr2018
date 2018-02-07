@@ -11,3 +11,13 @@ Some files for future labs may be online, but please check back at the beginning
 GitHub users: Fork this repo.
 
 Non-GitHub users: Go to "Clone or download" > "Download ZIP" to download the files to your machine.
+
+#### Software
+
+Please make sure you have:
+
+- Latest version of R
+
+- Latest version of RStudio
+
+- quanteda 1.0.0
