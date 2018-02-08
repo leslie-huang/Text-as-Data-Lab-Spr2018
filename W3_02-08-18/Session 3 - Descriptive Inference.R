@@ -16,12 +16,11 @@ library(quanteda.corpora)
 
 # 1.1 Non-English stopwords
 
-stopwords(language = "zh", source = "misc")
-
 stopwords(language = "spanish")
 
 stopwords(language = "german")
 
+stopwords(language = "zh", source = "misc")
 
 ## 2 Demonstrate Heap's law 
 
@@ -31,9 +30,9 @@ stopwords(language = "german")
 # T = number of tokens
 # k, b are constants
 
+# Example using data from the corpus of inaugural speeches
 tokens <- tokens(data_corpus_inaugural, remove_punct = TRUE) 
-Tee <- lengths(tokens)
-Tee <- sum(Tee)
+Tee <- sum(lengths(tokens))
 
 inaug_dfm <- dfm(data_corpus_inaugural)
 
@@ -45,6 +44,8 @@ k <- 44
 b <- .49
 
 k * (Tee)^b
+
+M
 
 # Let's think about why
 
@@ -222,3 +223,4 @@ iconv("São Paulo", from = "UTF-8", to = "ASCII")
 
 # In most cases, your text will probably already be in UTF-8. 
 # In most cases, you want to convert your text to UTF-8 (with the possible exception of languages that do not use the Latin alphabet)
+
