@@ -1,6 +1,6 @@
 # TA: Leslie Huang
 # Course: Text as Data
-# Date: 02/01/2018
+# Date: 02/08/2018
 # Code originally from: Patrick Chester; updated and expanded by Leslie Huang
 
 ## Set up Quanteda 
