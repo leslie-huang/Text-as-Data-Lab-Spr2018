@@ -172,12 +172,12 @@ head(as.matrix(term_similarity), n = 20)
 
 # UTF-8 represents characters from European languages (English, Spanish, German, French, etc) and some characters from Chinese/Japanese/Korean, plus emojis.
 
-# Note: Text obtained from Internet sources can be messy. Issues can especially arise when you are working with texts from multiple sources and you end up with a mixture of encodings. Or, sometimes when you read in text and do not specify the encoding, the encoding is detected incorrectly.
+# Note: Text obtained from Internet sources can be messy. Issues can especially arise when you are working with texts from multiple sources and you end up with a mixture of encodings. This can cause the encoding to be detected incorrectly when you read in the text.
 
 # 7.2 What encoding do you have?
 
 # You can check with this function in base R
-validUTF8("asdf")
+validUTF8("This is a sentence")
 
 # You can use the package utf8(), written by Patrick Perry from NYU
 # Read about it here: https://github.com/patperry/r-utf8
@@ -218,8 +218,6 @@ charToRaw(test_str) # UTF-8 encoding
 
 # But what about here?
 iconv("São Paulo", from = "UTF-8", to = "ASCII")
-
-# ASCII only has 128 characters so it does not have coverage of all accented characters.
 
 # In most cases, your text will probably already be in UTF-8. 
 # In most cases, you want to convert your text to UTF-8 (with the possible exception of languages that do not use the Latin alphabet)
