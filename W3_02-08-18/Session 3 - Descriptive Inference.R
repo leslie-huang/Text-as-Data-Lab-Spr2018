@@ -51,6 +51,15 @@ M
 
 # Let's think about why
 
+# 30 <= k <= 100
+# 0.4 <= b <= 0.6
+
+# New parameters
+
+k <- 41
+b <- 0.46
+
+k * (Tee)^b
 
 ## 3 Demonstrate Zipf's law
 
