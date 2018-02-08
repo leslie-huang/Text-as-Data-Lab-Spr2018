@@ -25,12 +25,16 @@ stopwords(language = "zh", source = "misc")
 # We will discuss accented characters more at the end
 
 ## 2 Demonstrate Heap's law 
+# Token-type relationship in corpus
 
 #     M = kT^b
 
-# M = vocab size
+# M = vocab size (num of types)
 # T = number of tokens
+
 # k, b are constants
+# 30 <= k <= 100
+# 0.4 <= b <= 0.6
 
 # Example using data from the corpus of inaugural speeches
 tokens <- tokens(data_corpus_inaugural, remove_punct = TRUE) 
@@ -40,7 +44,7 @@ inaug_dfm <- dfm(data_corpus_inaugural)
 
 M <- nfeat(inaug_dfm)
 
-# Let's check using parameter values from MRS for a corpus with more than 100,000 tokens
+# Let's check using parameter values from MRS Ch. 5 for a corpus with more than 100,000 tokens
 
 k <- 44
 b <- .49
@@ -51,8 +55,6 @@ M
 
 # Let's think about why
 
-# 30 <= k <= 100
-# 0.4 <= b <= 0.6
 
 # New parameters
 
@@ -62,6 +64,7 @@ b <- 0.46
 k * (Tee)^b
 
 ## 3 Demonstrate Zipf's law
+# Term frequency in corpus
 
 plot(log10(1:100), log10(topfeatures(inaug_dfm, 100)),
      xlab = "log10(rank)", ylab = "log10(frequency)", main = "Top 100 Words")
