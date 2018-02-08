@@ -81,7 +81,7 @@ charToRaw(converted_str) # Latin-1 encoding
 charToRaw(test_str) # UTF-8 encoding
 
 # But what about here?
-iconv("São Paulo", from = "UTF-8", to = "ASCII")
+iconv("ã", from = "UTF-8", to = "ASCII")
 
 # In most cases, your text will probably already be in UTF-8. 
 # In most cases, you want to convert your text to UTF-8 (with the possible exception of languages that do not use the Latin alphabet)
@@ -153,18 +153,18 @@ summary(regression)
 
 mydfm <- dfm(data_corpus_inaugural, remove=stopwords("english"))
 
-plot(log10(1:100), log10(topfeatures(inaug_dfm, 100)),
+plot(log10(1:100), log10(topfeatures(mydfm, 100)),
      xlab = "log10(rank)", ylab = "log10(frequency)", main = "Top 100 Words")
 
 # Regression to check if slope is approx -1.0
-regression <- lm(log10(topfeatures(inaug_dfm, 100)) ~ log10(1:100))
+regression <- lm(log10(topfeatures(mydfm, 100)) ~ log10(1:100))
 abline(regression, col = "red")
 confint(regression)
 
 
 ## 5 Key Words In Context (KWIC) is a good way to summarize info about a topic
 
-kwic(data_corpus_inaugural, "terror", 3)
+kwic(data_corpus_inaugural, "America", 3, case_insensitive = FALSE)
 
 help(kwic)
 
@@ -199,7 +199,7 @@ a %*% b / (norm_vec(a) *norm_vec(b) )
 # Let's do it with texts
 
 last_speech_text <- data_corpus_inaugural[ndoc(data_corpus_inaugural)]
-first_speech_text <- data_corpus_inaugural[1]
+first_speech_text <- data_corpus_inaugural[ndoc(data_corpus_inaugural) - 2]
 
 # Make a dfm of these two
 
