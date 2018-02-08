@@ -22,6 +22,8 @@ stopwords(language = "german")
 
 stopwords(language = "zh", source = "misc")
 
+# We will discuss accented characters more at the end
+
 ## 2 Demonstrate Heap's law 
 
 #     M = kT^b
@@ -222,3 +224,4 @@ iconv("São Paulo", from = "UTF-8", to = "ASCII")
 # In most cases, your text will probably already be in UTF-8. 
 # In most cases, you want to convert your text to UTF-8 (with the possible exception of languages that do not use the Latin alphabet)
 
+# The authors of quanteda have also written a package called readtext() that can also deal with encodings in text corpora!
