@@ -66,14 +66,17 @@ k * (Tee)^b
 ## 3 Demonstrate Zipf's law
 # Term frequency in corpus
 
+# x-axis: log of ranks 1 through 100
+# y axis log of frquency of top 100 terms from the DFM
+
 plot(log10(1:100), log10(topfeatures(inaug_dfm, 100)),
-     xlab = "log10(rank)", ylab = "log10(frequency)", main = "Top 100 Words")
+     xlab = "log10(rank)", ylab = "log10(frequency)", main = "Top 100 Words in U.S. Presidential Inaugural Speech Corpus")
 
 # Fits a linear regression to check if slope is approx -1.0
 regression <- lm(log10(topfeatures(inaug_dfm, 100)) ~ log10(1:100))
 
 # Adds the fitted line from regression to the plot
-abline(regression, col="red")
+abline(regression, col = "red")
 
 # Returns the 95% confidence intervals for the regression coefficients
 confint(regression)
