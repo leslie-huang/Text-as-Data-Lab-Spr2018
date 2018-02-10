@@ -2,13 +2,11 @@
 # Course: Text as Data
 # Date: 2/15/2017
 # Recitation 4: Descriptive Inference II
-# Updated and expanded from materials from Patrick Chester
+# Credits: Updated and expanded from materials from Patrick Chester; some examples taken wholesale from Ken Benoit's NYU Dept. of Politics short course Fall 2014, available on his website: www.kenbenoit.net
 
-## Some examples taken wholesale from Ken Benoit's NYU Dept. of Politics short course Fall 2014
-## Available on his website: www.kenbenoit.net
-
-# Clear Global Environment
+# Setup environment
 rm(list = ls())
+set.seed("1234")
 
 # 1 Loading packages
 library(quanteda)
@@ -23,7 +21,7 @@ irish_budget_texts <- texts(data_corpus_irishbudgets)
 
 # 3 Lexical diversity measures
 
-# TTR 
+# 3.1 TTR 
 budget_tokens <- tokens(irish_budget_texts, remove_punct = TRUE) 
 
 # Num tokens per document
@@ -40,24 +38,26 @@ head(budget_tokens)
 # Would you expect the budgets to become more or less complex over time
 plot(irish_budget_TTR)
 
-# Aggregating average of per-document TTR scores
+# 3.2 Mean per-document TTR scores by year, party
 
 aggregate(irish_budget_TTR, by = list(data_corpus_irishbudgets[["year"]]$year), FUN = mean)
 
 aggregate(irish_budget_TTR, by = list(data_corpus_irishbudgets[["party"]]$party), FUN = mean)
 
 
-# Calculate TTR score by group 
+# 3.3 Calculate TTR score by year, party 
 textstat_lexdiv(dfm(data_corpus_irishbudgets, groups = "year", remove_punct = TRUE, verbose = TRUE), measure = "TTR")
+
+# Sidebar: using the "groups" parameter is how to group documents by a covariate
 
 textstat_lexdiv(dfm(data_corpus_irishbudgets, groups = "party", remove_punct = TRUE, verbose = TRUE), measure = "TTR")
 
 # Thoughts on TTR
 
 
-# Readability measure
+# 4 Readability measure
 
-# let's look at FRE
+# 4.1 FRE
 textstat_readability(data_corpus_irishbudgets, "Flesch")
 
 textstat_readability(texts(data_corpus_irishbudgets, groups = "year"), "Flesch")
@@ -65,7 +65,7 @@ textstat_readability(texts(data_corpus_irishbudgets, groups = "year"), "Flesch")
 textstat_readability(texts(data_corpus_irishbudgets, groups = "party"), "Flesch")
 
 
-# Dale-Chall measure
+# 4.2 Dale-Chall measure
 
 textstat_readability(data_corpus_irishbudgets, "Dale.Chall")
 
@@ -73,7 +73,7 @@ textstat_readability(texts(data_corpus_irishbudgets, groups = "year"), "Dale.Cha
 
 textstat_readability(texts(data_corpus_irishbudgets, groups = "party"), "Dale.Chall")
 
-# let's compare each measure
+# 4.3 let's compare each measure
 
 all_readability_measures <- textstat_readability(data_corpus_irishbudgets, c("Flesch", "Dale.Chall", "SMOG", "Coleman.Liau", "Fucks"))
 
@@ -82,139 +82,56 @@ readability_matrix <- cbind(all_readability_measures$Flesch, all_readability_mea
 cor(readability_matrix)
 
 
-# 4 Bootstrapping
+# 5 Bootstrapping
 
-# A. First we try bootstrapping with the boot function
-
-# remove smaller parties
+# data prep: remove smaller parties so we're left with the 6 largest
 iebudgetsCorpSub <- corpus_subset(data_corpus_irishbudgets, !(party %in% c("WUAG", "SOC", "PBPA" )))
 
-bsReadabilityByGroup <- function(input_corpus, i, groups = NULL, measure = "Flesch") {
-  textstat_readability(texts(input_corpus[i], groups = groups), measure)
-  
-}
+# We will use a loop to bootstrap the text and calculate standard errors
 
-num_bootstraps <- 50
+iters <- 100
 
-# by party
-
-groups <- factor(iebudgetsCorpSub[["party"]]$party)
-
-bootstrapped_flesch_by_party <- boot(texts(iebudgetsCorpSub), bsReadabilityByGroup, strata = groups, R = num_bootstraps, groups = groups)
-
-colnames(bootstrapped_flesch_by_party$t) <- names(bootstrapped_flesch_by_party$t0)
-
-apply(bootstrapped_flesch_by_party$t, 2, quantile, c(.025, .5, .975))
-
-# by year
-groups <- factor(iebudgetsCorpSub[["year"]]$year)
-b <- boot(texts(iebudgetsCorpSub), bsReadabilityByGroup, strata = groups, R = R, groups = groups)
-colnames(b$t) <- names(b$t0)
-apply(b$t, 2, quantile, c(.025, .5, .975))
-
-# FYI: you can get the SEs the same way, from b$t
-
-
-# Next, we will use a loop to bootstrap the text and calculate standard errors
-
-# initialize data frames
-year_FRE <- data.frame(matrix(ncol = 5, nrow = 100))
-party_FRE<-data.frame(matrix(ncol = 6, nrow = 100))
-
-df <- data.frame(texts = iebudgetsCorpSub[["texts"]]$texts, 
+iebudgets_df <- data.frame(texts = iebudgetsCorpSub[["texts"]]$texts, 
                  party = iebudgetsCorpSub[["party"]]$party,
                  year = as.numeric(iebudgetsCorpSub[["year"]]$year),
-                 stringsAsFactors = F)
+                 stringsAsFactors = FALSE)
 
 
 # Let's filter out the parties with only one speech
-df <- filter(df, party != "WUAG", party != "SOC", party != "PBPA" )
+iebudgets_df <- na.omit(filter(iebudgets_df, party != "WUAG", party != "SOC", party != "PBPA"))
 
-# run the bootstraps
+# initialize data frames to store results
+party_FRE <- data.frame(matrix(ncol = length(unique(iebudgets_df$party)), nrow = iters))
 
-for(i in 1:100){
+# run the bootstrap
+
+for(i in 1:iters) {
   
-  #sample 200 
-  bootstrapped<-sample_n(df, 200, replace=TRUE)
+  iebudgets_grouped <- group_by(iebudgets_df, party)
+
+  # take a sample of 20 documents per level (party)
+  bootstrap_sample <- sample_n(iebudgets_grouped, 20, replace = TRUE)
   
-  bootstrapped$read_FRE<-textstat_readability(bootstrapped$texts, "Flesch")
+  readability_results <- textstat_readability(bootstrap_sample$texts, measure = "Flesch")
   
   #store results
   
-  year_FRE[i,]<-aggregate(bootstrapped$read_FRE, by=list(bootstrapped$year), FUN=mean)[,2]
-  
-  party_FRE[i,]<-aggregate(bootstrapped$read_FRE, by=list(bootstrapped$party), FUN=mean)[,2]
+  party_FRE[i, ] <- aggregate(readability_results, by = list(bootstrap_sample$party), FUN = mean)$Flesch
   
 }
 
 # Name the data frames
 
-colnames(year_FRE)<-names(table(df$year))
-colnames(party_FRE)<-names(table(df$party))
+colnames(party_FRE) <- names(table(iebudgets_df$party))
 
 # Define the standard error function
 std <- function(x) sd(x)/sqrt(length(x))
 
 # Calculate standard errors and point estimates
 
-year_ses<-apply(year_FRE, 2, std)
+party_ses <- apply(party_FRE, 2, std)
 
-year_means<-apply(year_FRE, 2, mean)
-
-
-party_ses<-apply(party_FRE, 2, std)
-
-party_means<-apply(party_FRE, 2, mean)
-
-
-# Plot results--year
-
-coefs<-year_means
-ses<-year_ses
-
-y.axis <- c(1:5)
-min <- min(coefs - 2*ses)
-max <- max(coefs + 2*ses)
-var.names <- colnames(year_FRE)
-adjust <- 0
-par(mar=c(2,8,2,2))
-
-plot(coefs, y.axis, type = "p", axes = F, xlab = "", ylab = "", pch = 19, cex = .8, 
-     xlim=c(min,max),ylim = c(.5,6.5), main = "")
-rect(min,.5,max,1.5, col = c("grey97"), border="grey90", lty = 2)
-rect(min,1.5,max,2.5, col = c("grey95"), border="grey90", lty = 2)
-rect(min,2.5,max,3.5, col = c("grey97"), border="grey90", lty = 2)
-rect(min,3.5,max,4.5, col = c("grey95"), border="grey90", lty = 2)
-rect(min,4.5,max,5.5, col = c("grey97"), border="grey90", lty = 2)
-#rect(min,5.5,max,6.5, col = c("grey97"), border="grey90", lty = 2)
-
-axis(1, at = seq(min,max,(max-min)/10), 
-     labels = c(round(min+0*((max-min)/10),3),
-                round(min+1*((max-min)/10),3),
-                round(min+2*((max-min)/10),3),
-                round(min+3*((max-min)/10),3),
-                round(min+4*((max-min)/10),3),
-                round(min+5*((max-min)/10),3),
-                round(min+6*((max-min)/10),3),
-                round(min+7*((max-min)/10),3),
-                round(min+8*((max-min)/10),3),
-                round(min+9*((max-min)/10),3),
-                round(max,3)),tick = T,cex.axis = .75, mgp = c(2,.7,0))
-axis(2, at = y.axis, label = var.names, las = 1, tick = FALSE, cex.axis =.8)
-abline(h = y.axis, lty = 2, lwd = .5, col = "white")
-segments(coefs-qnorm(.975)*ses, y.axis+2*adjust, coefs+qnorm(.975)*ses, y.axis+2*adjust, lwd =  1)
-
-segments(coefs-qnorm(.95)*ses, y.axis+2*adjust-.035, coefs-qnorm(.95)*ses, y.axis+2*adjust+.035, lwd = .9)
-segments(coefs+qnorm(.95)*ses, y.axis+2*adjust-.035, coefs+qnorm(.95)*ses, y.axis+2*adjust+.035, lwd = .9)
-points(coefs, y.axis+2*adjust,pch=21,cex=.8, bg="white")
-
-# Now let's compute the Flesch statistic directly for years
-table(df$year)
-df$read_FRE<-textstat_readability(df$texts, "Flesch")
-observed<-aggregate(df$read_FRE, by=list(df$year), FUN=mean)
-
-# How well did we do?
-
+party_means <- apply(party_FRE, 2, mean)
 
 # Plot results--party
 
