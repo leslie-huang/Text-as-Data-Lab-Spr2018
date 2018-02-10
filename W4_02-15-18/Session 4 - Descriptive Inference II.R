@@ -116,7 +116,10 @@ for(i in 1:iters) {
   
   #store results
   
-  party_FRE[i, ] <- aggregate(readability_results, by = list(bootstrap_sample$party), FUN = mean)$Flesch
+  readability_grouped <- group_by(readability_results, bootstrap_sample$party)
+  readability_means <- summarize(readability_grouped, mean(Flesch))
+  
+  party_FRE[i, ] <- t(readability_means[, 2])
   
 }
 
@@ -174,7 +177,14 @@ segments(coefs-qnorm(.95)*ses, y.axis+2*adjust-.035, coefs-qnorm(.95)*ses, y.axi
 segments(coefs+qnorm(.95)*ses, y.axis+2*adjust-.035, coefs+qnorm(.95)*ses, y.axis+2*adjust+.035, lwd = .9)
 points(coefs, y.axis+2*adjust,pch=21,cex=.8, bg="white")
 
-# Directly calculating the Flesch statistic by party
-aggregate(df$read_FRE, by=list(df$party), FUN=mean)
+# Compare with calculating the per-party mean Flesch statistic
+
+summarize(
+          group_by(
+                  textstat_readability(iebudgets_df$texts, measure = "Flesch"),
+                  iebudgets_df$party
+          ),
+          mean(Flesch)
+)
 
 # How well did we do?
