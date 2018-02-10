@@ -87,14 +87,25 @@ cor(readability_matrix)
 # data prep: remove smaller parties so we're left with the 6 largest
 iebudgetsCorpSub <- corpus_subset(data_corpus_irishbudgets, !(party %in% c("WUAG", "SOC", "PBPA" )))
 
-# We will use a loop to bootstrap the text and calculate standard errors
-
-iters <- 100
-
+# convert corpus to df for stratified sampling
 iebudgets_df <- data.frame(texts = iebudgetsCorpSub[["texts"]]$texts, 
                  party = iebudgetsCorpSub[["party"]]$party,
                  year = as.numeric(iebudgetsCorpSub[["year"]]$year),
                  stringsAsFactors = FALSE)
+
+# Let's filter out the parties with only one speech
+iebudgets_df <- na.omit(filter(iebudgets_df, party != "WUAG", party != "SOC", party != "PBPA"))
+
+
+
+# We will use a loop to bootstrap the text and calculate standard errors
+
+iters <- 10
+
+iebudgets_df <- data.frame(texts = iebudgetsCorpSub[["texts"]]$texts, 
+                           party = iebudgetsCorpSub[["party"]]$party,
+                           year = as.numeric(iebudgetsCorpSub[["year"]]$year),
+                           stringsAsFactors = FALSE)
 
 
 # Let's filter out the parties with only one speech
@@ -102,13 +113,14 @@ iebudgets_df <- na.omit(filter(iebudgets_df, party != "WUAG", party != "SOC", pa
 
 # initialize data frames to store results
 party_FRE <- data.frame(matrix(ncol = length(unique(iebudgets_df$party)), nrow = iters))
+colnames(party_FRE) <- names(table(iebudgets_df$party))
 
 # run the bootstrap
 
 for(i in 1:iters) {
   
   iebudgets_grouped <- group_by(iebudgets_df, party)
-
+  
   # take a sample of 20 documents per level (party)
   bootstrap_sample <- sample_n(iebudgets_grouped, 20, replace = TRUE)
   
@@ -122,10 +134,6 @@ for(i in 1:iters) {
   party_FRE[i, ] <- t(readability_means[, 2])
   
 }
-
-# Name the data frames
-
-colnames(party_FRE) <- names(table(iebudgets_df$party))
 
 # Define the standard error function
 std <- function(x) sd(x)/sqrt(length(x))
