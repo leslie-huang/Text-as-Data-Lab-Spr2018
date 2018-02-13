@@ -196,3 +196,31 @@ summarize(
 )
 
 # How well did we do?
+
+# 6 Sophistication
+
+# devtools::install_github("kbenoit/sophistication")
+library("sophistication")
+
+# We'll run through the example from https://github.com/kbenoit/sophistication
+
+# Load data
+data(data_corpus_sotu, package = "quanteda.corpora")
+
+# Make snippets of 1 sentence each, then clean them
+snippetData <- snippets_make(data_corpus_sotu, nsentence = 1, minchar = 150, maxchar = 250)
+snippetData <- snippets_clean(snippetData)
+
+# Sample the snippets
+testData <- snippetData[sample(1:nrow(snippetData), 5), ]
+
+
+# generate pairs from the test data for a minimum spanning tree
+(snippetPairsMST <- pairs_regular_make(testData))
+
+# generate more pairs from a larger sample of data
+snippetPairsAll <- pairs_regular_make(snippetData[sample(1:nrow(snippetData), 1000), ])
+
+# Make some "Gold" questions -- for use with CrowdFlower workers 
+# default reading level is Flesch and the default difference in readability of the two snippets in the pair is the 0.1 and 0.9 quintiles
+pairs_gold_make(snippetPairsAll, n.pairs = 10)
