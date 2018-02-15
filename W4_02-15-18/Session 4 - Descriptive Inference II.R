@@ -100,7 +100,7 @@ iebudgets_df <- data.frame(texts = iebudgetsCorpSub[["texts"]]$texts,
 # Let's filter out empty speeches
 iebudgets_df <- na.omit(iebudgets_df)
 
-# We will use a loop to bootstrap the text and calculate standard errors
+# We will use a loop to bootstrap a sample of texts and subsequently calculate standard errors
 
 iters <- 10
 
@@ -210,9 +210,8 @@ snippetData <- snippets_clean(snippetData)
 # Sample the snippets
 testData <- snippetData[sample(1:nrow(snippetData), 5), ]
 
-
-# generate pairs from the test data for a minimum spanning tree
-(snippetPairsMST <- pairs_regular_make(testData))
+# generate n-1 pairs from n test snippets for a minimum spanning tree
+(snippetPairsMST <- pairs_regular_make(testData)
 
 # generate more pairs from a larger sample of data
 snippetPairsAll <- pairs_regular_make(snippetData[sample(1:nrow(snippetData), 1000), ])
