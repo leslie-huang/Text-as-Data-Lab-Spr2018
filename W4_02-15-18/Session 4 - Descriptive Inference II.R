@@ -60,7 +60,7 @@ textstat_lexdiv(dfm(data_corpus_irishbudgets, groups = "party", remove_punct = T
 # 4 Readability measure
 
 # 4.1 FRE
-textstat_readability(data_corpus_irishbudgets, "Flesch")
+View(textstat_readability(data_corpus_irishbudgets, "Flesch"))
 
 textstat_readability(texts(data_corpus_irishbudgets, groups = "year"), "Flesch")
 
@@ -69,11 +69,11 @@ textstat_readability(texts(data_corpus_irishbudgets, groups = "party"), "Flesch"
 
 # 4.2 Dale-Chall measure
 
-textstat_readability(data_corpus_irishbudgets, "Dale.Chall")
+textstat_readability(data_corpus_irishbudgets, "Dale.Chall.old")
 
-textstat_readability(texts(data_corpus_irishbudgets, groups = "year"), "Dale.Chall")
+textstat_readability(texts(data_corpus_irishbudgets, groups = "year"), "Dale.Chall.old")
 
-textstat_readability(texts(data_corpus_irishbudgets, groups = "party"), "Dale.Chall")
+textstat_readability(texts(data_corpus_irishbudgets, groups = "party"), measure = "Dale.Chall.old")
 
 # 4.3 let's compare each measure
 
@@ -195,7 +195,7 @@ summarize(
 
 # 6 Sophistication
 
-# devtools::install_github("kbenoit/sophistication")
+#devtools::install_github("kbenoit/sophistication")
 library("sophistication")
 
 # We'll run through the example from https://github.com/kbenoit/sophistication
@@ -211,7 +211,7 @@ snippetData <- snippets_clean(snippetData)
 testData <- snippetData[sample(1:nrow(snippetData), 5), ]
 
 # generate n-1 pairs from n test snippets for a minimum spanning tree
-(snippetPairsMST <- pairs_regular_make(testData)
+(snippetPairsMST <- pairs_regular_make(testData))
 
 # generate more pairs from a larger sample of data
 snippetPairsAll <- pairs_regular_make(snippetData[sample(1:nrow(snippetData), 1000), ])
