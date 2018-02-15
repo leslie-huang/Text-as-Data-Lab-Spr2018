@@ -11,7 +11,6 @@ set.seed("1234")
 # 1 Loading packages
 library(quanteda)
 library(quanteda.corpora)
-library(boot)
 library(dplyr)
 
 # 2 Load in data: Irish budget proposals from 2008-2012
@@ -31,24 +30,27 @@ num_types <- ntype(budget_tokens)
 
 irish_budget_TTR <- num_types / num_tokens
 
+head(irish_budget_TTR)
+
 View(irish_budget_TTR)
 
-head(budget_tokens)
-
-# Would you expect the budgets to become more or less complex over time
-plot(irish_budget_TTR)
+# Would you expect the budgets to become more or less complex over time?
 
 # 3.2 Mean per-document TTR scores by year, party
 
-aggregate(irish_budget_TTR, by = list(data_corpus_irishbudgets[["year"]]$year), FUN = mean)
+TTR_by_year <- aggregate(irish_budget_TTR, by = list(data_corpus_irishbudgets[["year"]]$year), FUN = mean)
+
+plot(TTR_by_year)
 
 aggregate(irish_budget_TTR, by = list(data_corpus_irishbudgets[["party"]]$party), FUN = mean)
 
 
 # 3.3 Calculate TTR score by year, party 
+
+# by year
 textstat_lexdiv(dfm(data_corpus_irishbudgets, groups = "year", remove_punct = TRUE, verbose = TRUE), measure = "TTR")
 
-# Sidebar: using the "groups" parameter is how to group documents by a covariate
+# Sidebar: using the "groups" parameter is how to group documents by a covariate -- note how this changes the ndocs of your corpus
 
 textstat_lexdiv(dfm(data_corpus_irishbudgets, groups = "party", remove_punct = TRUE, verbose = TRUE), measure = "TTR")
 
@@ -77,10 +79,12 @@ textstat_readability(texts(data_corpus_irishbudgets, groups = "party"), "Dale.Ch
 
 all_readability_measures <- textstat_readability(data_corpus_irishbudgets, c("Flesch", "Dale.Chall", "SMOG", "Coleman.Liau", "Fucks"))
 
-readability_matrix <- cbind(all_readability_measures$Flesch, all_readability_measures$Dale.Chall, all_readability_measures$Coleman.Liau, all_readability_measures$Fucks)
+readability_matrix <- cbind(all_readability_measures$Flesch, all_readability_measures$Dale.Chall, all_readability_measures$SMOG, all_readability_measures$Coleman.Liau, all_readability_measures$Fucks)
 
-cor(readability_matrix)
-
+readability_cor <- cor(readability_matrix)
+rownames(readability_cor) <- c("Flesch", "Dale-Chall", "SMOG", "Coleman Liau", "Fucks")
+colnames(readability_cor) <- c("Flesch", "Dale-Chall", "SMOG", "Coleman Liau", "Fucks")
+readability_cor
 
 # 5 Bootstrapping
 
@@ -93,23 +97,12 @@ iebudgets_df <- data.frame(texts = iebudgetsCorpSub[["texts"]]$texts,
                  year = as.numeric(iebudgetsCorpSub[["year"]]$year),
                  stringsAsFactors = FALSE)
 
-# Let's filter out the parties with only one speech
-iebudgets_df <- na.omit(filter(iebudgets_df, party != "WUAG", party != "SOC", party != "PBPA"))
-
-
+# Let's filter out empty speeches
+iebudgets_df <- na.omit(iebudgets_df)
 
 # We will use a loop to bootstrap the text and calculate standard errors
 
 iters <- 10
-
-iebudgets_df <- data.frame(texts = iebudgetsCorpSub[["texts"]]$texts, 
-                           party = iebudgetsCorpSub[["party"]]$party,
-                           year = as.numeric(iebudgetsCorpSub[["year"]]$year),
-                           stringsAsFactors = FALSE)
-
-
-# Let's filter out the parties with only one speech
-iebudgets_df <- na.omit(filter(iebudgets_df, party != "WUAG", party != "SOC", party != "PBPA"))
 
 # initialize data frames to store results
 party_FRE <- data.frame(matrix(ncol = length(unique(iebudgets_df$party)), nrow = iters))
@@ -134,6 +127,9 @@ for(i in 1:iters) {
   party_FRE[i, ] <- t(readability_means[, 2])
   
 }
+
+# inspect the results
+View(party_FRE)
 
 # Define the standard error function
 std <- function(x) sd(x)/sqrt(length(x))
