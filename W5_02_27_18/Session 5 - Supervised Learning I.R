@@ -9,7 +9,7 @@
 # Clear Global Environment
 rm(list = ls())
 
-setwd(getwd())
+setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W5_02_27_18/")
 
 # Libraries
 library(quanteda)
@@ -32,13 +32,13 @@ manifestos_df <- data.frame(year = dates, text = cons_manifestos, stringsAsFacto
 
 # Examples
 
-words <- c("Washington Post", "NYT", "Wall Street Journal", "Peer-2-Peer", "Red State")
+words <- c("Washington Post", "NYT", "Wall Street Journal", "Peer-2-Peer", "Red State", "Cheese", "222", ",")
 
 # Exploring by character type
-grep("\\w", words, value = T)  # Elements that have letters
+grep("\\w", words, value = T)  # Elements that have alphanumeric characters
 grep("\\w{7}", words, value = T)  # Elements that have words that are at least 7 characters long
 grep("\\d", words, value = T)  # Elements that contain numbers
-grep("\\W", words, value = T)  # Elements that contain special characters (Including white space)
+grep("\\W", words, value = T)  # Elements that contain nonword characters (Including white space)
 
 # note that  grep returns the full element that matched the pattern
 
@@ -48,7 +48,8 @@ grep("^vot", words2) # Returns the index of matching items in the vector
 grep("^vot", words2, value = T) # Returns the elements of the vector that matched the pattern
 grepl("^vot", words2)  # Returns a logical vector indicating whether or not the component containes the expression
 
-# Note that regex expressions in R are similar to those in other languages but there are some key differences
+# you can use the indices to select elements from the original vector that you want
+words2[grepl("^vot", words2)]
 
 presidents <- c("Roosevelt-33", "Roosevelt-37", "Obama-2003")
 
@@ -56,6 +57,12 @@ presidents <- c("Roosevelt-33", "Roosevelt-37", "Obama-2003")
 gsub("(\\w)-(\\d{2})", "\\1-19\\2", presidents) # Parentheses can identify components that can later be referenced by \\1 - \\9
 
 gsub("(\\w)-(\\d{2})$", "\\1-19\\2", presidents) # We want to use the $ to indicate that the pattern should come at the end of the word, to avoid the mismatch in Obama-192003
+
+# Note that regex expressions in R are similar to those in other languages but there are some key differences
+
+# Resources:
+# https://rstudio-pubs-static.s3.amazonaws.com/74603_76cd14d5983f47408fdf0b323550b846.html
+# http://r4ds.had.co.nz/strings.html#matching-patterns-with-regular-expressions
 
 
 # 4 Selecting Features from DFM using Regular Expressions
@@ -116,8 +123,8 @@ plot(manifestos_df$year,
      manifestos_lg[,"VALUES.CONSERVATIVE"],
      xlab="Year", ylab="Conservative values", type="b", pch=19)
 
-plot(man_df$year, 
-     dic_dfm[,"INSTITUTIONS.CONSERVATIVE"] - dic_dfm[,"INSTITUTIONS.RADICAL"],
+plot(manifestos_df$year, 
+     manifestos_lg[,"INSTITUTIONS.CONSERVATIVE"] - manifestos_lg[,"INSTITUTIONS.RADICAL"],
      xlab="Year", ylab="Net Conservative Institutions", type="b", pch=19)
 
 # RID Dictionary--Regressive Imagery Dictionary
