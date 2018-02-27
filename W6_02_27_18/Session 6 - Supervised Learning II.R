@@ -9,11 +9,12 @@
 # Clear Global Environment
 rm(list = ls())
 
-setwd(getwd())
+setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W6_02_27_18")
 
 # Libraries
 library(quanteda)
 library(quanteda.corpora)
+library(readtext)
 
 ## 1 Supervised Learning: Naive Bayes
 
@@ -114,7 +115,6 @@ predict(ws_smooth, newdata = test_dfm,
 
 # Loading data
 data("data_corpus_amicus")
-summary(data_corpus_amicus)
 
 amicus_dfm <- dfm(data_corpus_amicus)
 
@@ -122,10 +122,12 @@ amNBmodel <- textmodel_nb(amicus_dfm, docvars(data_corpus_amicus, "trainclass"))
 
 amNBpredict <- predict(amNBmodel)
 
-# "confusion matrix": NB
-tab_NB <- table(amNBpredict$nb.predicted, docvars(data_corpus_amicus, "testclass"))
+# "confusion matrix": Naive Bayes
+tab_NB <- table(docvars(data_corpus_amicus, "testclass"), amNBpredict$nb.predicted)
 
-# Accuracy: NB
+tab_NB
+
+# Accuracy: Naive Bayes
 (tab_NB[1,1]+tab_NB[2,2])/sum(tab_NB)
 
 reference <- c(1, 1, -1, -1, rep(NA, 98)) # class labels
@@ -138,8 +140,8 @@ plot(amWSmodel$wordscores, c(1, -1) %*% amNBmodel$PcGw, xlab="Wordscore", ylab="
 
 amWSresults <- ifelse(amWSpredict > 0, "P", "R")
 
-# "confusion matrix": WS
-tab_WS <- table(amWSresults, docvars(data_corpus_amicus, "testclass"))
+# "confusion matrix": WordScores
+(tab_WS <- table(docvars(data_corpus_amicus, "testclass"), amWSresults) )
 
-# Accuracy: WS
+# Accuracy: WordScores
 (tab_WS[1,1]+tab_WS[2,2])/sum(tab_WS)
