@@ -2,6 +2,7 @@
 # Course: Text as Data
 # Date: 3/8/2018
 # Recitation 7: Supervised Learning III
+# Credit: Material updated from Patrick Chester
 
 # Clear Global Environment
 rm(list = ls())
@@ -90,16 +91,17 @@ training_break <- as.integer(0.9*nrow(df.tweets))
 
 container      <- create_container(bullying_dfm, 
                                    t(df.tweets$type), 
-                                   trainSize=1:training_break,
-                                   testSize = training_break:nrow(df), 
+                                   trainSize = 1:training_break,
+                                   testSize = (training_break+1):nrow(df.tweets), 
                                    virgin = FALSE
                                    )
 
-# What is the mistake in the code above?
-
-
 # Let's train the model 
-cv.svm <- cross_validate(container, nfold=4, algorithm = 'SVM', kernel = 'linear')
+cv.svm <- cross_validate(container, 
+                         nfold = 4,
+                         algorithm = 'SVM', 
+                         kernel = 'linear'
+                         )
 
 
 # Validate
@@ -113,7 +115,12 @@ prop.table(table(df.tweets$type)) # baseline
 # C) Radial - 90% training data
 
 # Let's try again with the radial kernel
-cv.svm <- cross_validate(container, nfold=4, algorithm = 'SVM', kernel = 'radial')
+cv.svm <- cross_validate(container, 
+                         nfold = 4, 
+                         algorithm = 'SVM', 
+                         kernel = 'radial'
+                         )
+
 cv.svm$meanAccuracy
 
 # D) Linear - 50% training data
@@ -122,12 +129,12 @@ cv.svm$meanAccuracy
 training_break <- as.integer(0.5*nrow(df.tweets))
 
 # There is no theoretical reason to choose .5 or .9
-container <- create_container(dtm, t(df.tweets$type), trainSize=1:training_break,
-                                   testSize=(training_break+1):nrow(df.tweets), virgin=FALSE)
-
-# Validate
-cv.svm <- cross_validate(container, nfold=2, algorithm = 'SVM', kernel = 'linear')
-
+container      <- create_container(bullying_dfm, 
+                                   t(df.tweets$type), 
+                                   trainSize = 1:training_break,
+                                   testSize = (training_break+1):nrow(df.tweets), 
+                                   virgin = FALSE
+)
 cv.svm$meanAccuracy
 
 prop.table(table(df.tweets$type)) # baseline
@@ -136,7 +143,7 @@ prop.table(table(df.tweets$type)) # baseline
 
 ## 3 Virality of stories from NYT
 
-nyt.fb <- read.csv("https://raw.githubusercontent.com/pchest/Text_as_Data/master/nyt-fb.csv", stringsAsFactors=FALSE)
+nyt.fb <- read.csv("nyt-fb.csv", stringsAsFactors = FALSE)
 
 str(nyt.fb)
 
@@ -164,13 +171,13 @@ nyt.fb$viral <- as.numeric(total.resp > perc_90)
 training_break <- as.integer(0.9*nrow(nyt.fb))
 
 # A) Classification with SVM
-dtm       <- create_matrix(nyt.fb$message, language="english", stemWords = FALSE,
+nyt_dtm       <- create_matrix(nyt.fb$message, language="english", stemWords = FALSE,
                            weighting = weightTfIdf, removePunctuation = FALSE)
 
-container      <- create_container(dtm, t(nyt.fb$type), trainSize=1:training_break,
+container      <- create_container(nyt_dtm, t(nyt.fb$type), trainSize=1:training_break,
                                    testSize=(training_break+1):nrow(nyt.fb), virgin=FALSE)
 
-cv.svm <- cross_validate(container, nfold=2, algorithm = 'SVM', kernel = 'linear')
+cv.svm <- cross_validate(container, nfold = 2, algorithm = 'SVM', kernel = 'linear')
 
 cv.svm$meanAccuracy
 
