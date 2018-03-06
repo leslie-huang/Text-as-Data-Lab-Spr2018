@@ -13,7 +13,6 @@ setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W7_03_08_18/")
 # Installing / Loading Libraries
 # install.packages("tm")
 # install.packages("NLP")
-# install.packages("https://cran.r-project.org/bin/windows/contrib/3.4/prodlim_1.6.1.zip",repos = NULL, method = "libcurl")
 # install.packages("RTextTools")
 
 library(NLP)
@@ -25,11 +24,11 @@ library(wordcloud)
 
 # https://github.com/pablobarbera/data-science-workshop
 
-df.tweets <- read.csv("bullying.csv", stringsAsFactors = F)
+tweets_df <- read.csv("bullying.csv", stringsAsFactors = F)
 
 # Identify posts with and without bullying traces and create large documents
-no_bullying <- paste(df.tweets$text[df.tweets$bullying_traces=="n"], collapse=" ")
-yes_bullying <- paste(df.tweets$text[df.tweets$bullying_traces=="y"], collapse=" ")
+no_bullying <- paste(tweets_df$text[tweets_df$bullying_traces == "n"], collapse = " ")
+yes_bullying <- paste(tweets_df$text[tweets_df$bullying_traces == "y"], collapse = " ")
 
 # Create DTM and preprocess
 groups <- VCorpus(VectorSource(c("No bullying" = no_bullying, "Yes bullying" = yes_bullying)))
@@ -48,19 +47,21 @@ bullying_tdm <- t(bullying_dtm)
 bullying_tdm <- as.matrix(weightTfIdf(bullying_tdm))
 
 # Display the two word clouds 
-comparison.cloud(bullying_tdm, max.words=100, colors=c("red", "blue")) # Function is from the wordcloud package
+comparison.cloud(bullying_tdm, max.words = 100, colors = c("red", "blue")) # Function is from the wordcloud package
 
-## 2 Classification with SVM
+print_algorithms()
+
+## 2 Classification with SVM 
 
 # A) Linear - whole sample
 
 # Let's train an SVM
-df.tweets$type <- as.numeric(factor(df.tweets$bullying_traces))
+tweets_df$type <- as.numeric(factor(tweets_df$bullying_traces))
 
 # New package, better for SVM
 ?create_matrix
-bullying_dfm  <- create_matrix(df.tweets$text, 
-                      language="english", 
+bullying_dfm  <- create_matrix(tweets_df$text, 
+                      language = "english", 
                       stemWords = FALSE,
                       weighting = weightTfIdf, 
                       removePunctuation = FALSE
@@ -71,8 +72,8 @@ str(bullying_dfm)
 # Make it all in-sample
 ?create_container
 container <- create_container(bullying_dfm, 
-                              t(df.tweets$type), 
-                              trainSize = 1:length(df.tweets$type),
+                              t(tweets_df$type), 
+                              trainSize = 1:length(tweets_df$type),
                               virgin = FALSE
                               )
 
@@ -87,12 +88,12 @@ cv.svm <- cross_validate(container, nfold = 2, algorithm = 'SVM', kernel = 'line
 
 # B) Linear - 90% Training data
 
-training_break <- as.integer(0.9*nrow(df.tweets))
+training_break <- as.integer(0.9 * nrow(tweets_df))
 
 container      <- create_container(bullying_dfm, 
-                                   t(df.tweets$type), 
+                                   t(tweets_df$type), 
                                    trainSize = 1:training_break,
-                                   testSize = (training_break+1):nrow(df.tweets), 
+                                   testSize = (training_break+1):nrow(tweets_df), 
                                    virgin = FALSE
                                    )
 
@@ -107,7 +108,7 @@ cv.svm <- cross_validate(container,
 # Validate
 cv.svm$meanAccuracy
 
-prop.table(table(df.tweets$type)) # baseline
+prop.table(table(tweets_df$type)) # baseline
 
 
 # How well did we do?
@@ -126,85 +127,89 @@ cv.svm$meanAccuracy
 # D) Linear - 50% training data
 
 # What if we try with different % test/train?
-training_break <- as.integer(0.5*nrow(df.tweets))
+training_break <- as.integer(0.5 * nrow(tweets_df))
 
 # There is no theoretical reason to choose .5 or .9
 container      <- create_container(bullying_dfm, 
-                                   t(df.tweets$type), 
+                                   t(tweets_df$type), 
                                    trainSize = 1:training_break,
-                                   testSize = (training_break+1):nrow(df.tweets), 
+                                   testSize = (training_break+1):nrow(tweets_df), 
                                    virgin = FALSE
 )
+
 cv.svm$meanAccuracy
 
-prop.table(table(df.tweets$type)) # baseline
+prop.table(table(tweets_df$type)) # baseline
 
 
 
 ## 3 Virality of stories from NYT
 
-nyt.fb <- read.csv("nyt-fb.csv", stringsAsFactors = FALSE)
+nyt_fb <- read.csv("nyt-fb.csv", stringsAsFactors = FALSE)
 
-str(nyt.fb)
+str(nyt_fb)
 
 
 # Create variables for month and hour
-head(nyt.fb$created_time)
+head(nyt_fb$created_time)
 
-month <- substr(nyt.fb$created_time, 6, 7)
+month <- substr(nyt_fb$created_time, 6, 7)
 
-hour <- substr(nyt.fb$created_time, 12, 13)
+hour <- substr(nyt_fb$created_time, 12, 13)
 
-nyt.fb <- data.frame(nyt.fb, month, hour)
+nyt_fb <- data.frame(nyt_fb, month, hour)
 
 
 # Create a "viral" index
-total.resp <- nyt.fb$likes_count + nyt.fb$shares_count + nyt.fb$comments_count
+total.resp <- nyt_fb$likes_count + nyt_fb$shares_count + nyt_fb$comments_count
 
 # Look at the extreme of the distribution
 perc_90 <- quantile(total.resp, .9) 
 
 # Create a binary y variable with values 2 being viral and 1 being non-viral
-nyt.fb$viral <- as.numeric(total.resp > perc_90)
+nyt_fb$viral <- as.numeric(total.resp > perc_90)
 
 # For the purposes of not destroying my laptop, let's choose a set of features
-training_break <- as.integer(0.9*nrow(nyt.fb))
+training_break <- as.integer(0.9*nrow(nyt_fb))
 
 # A) Classification with SVM
-nyt_dtm       <- create_matrix(nyt.fb$message, language="english", stemWords = FALSE,
+nyt_dtm       <- create_matrix(nyt_fb$message, language = "english", stemWords = FALSE,
                            weighting = weightTfIdf, removePunctuation = FALSE)
 
-container      <- create_container(nyt_dtm, t(nyt.fb$type), trainSize=1:training_break,
-                                   testSize=(training_break+1):nrow(nyt.fb), virgin=FALSE)
+container      <- create_container(nyt_dtm, t(nyt_fb$type), trainSize = 1:training_break,
+                                   testSize = (training_break+1):nrow(nyt_fb), virgin = FALSE)
 
 cv.svm <- cross_validate(container, nfold = 2, algorithm = 'SVM', kernel = 'linear')
 
 cv.svm$meanAccuracy
 
-prop.table(table(nyt.fb$viral))
+prop.table(table(nyt_fb$viral))
 
 
 # B) Classification with logistic regression
 
-message <- removePunctuation(tolower(nyt.fb$message))
-nyt.fb$israel <- grepl("israel", message)
-nyt.fb$trump <- grepl("trump", message)
-nyt.fb$hillary <- grepl("hillary", message)
-nyt.fb$obama <- grepl("barack|obama", message)
-nyt.fb$terror <- grepl("terror|isis|isil|qaeda", message)
-nyt.fb$kill <- grepl("kill|murder|shot", message)
-nyt.fb$debate <- grepl("debat", message)
+message <- removePunctuation(tolower(nyt_fb$message))
+nyt_fb$israel <- grepl("israel", message)
+nyt_fb$trump <- grepl("trump", message)
+nyt_fb$hillary <- grepl("hillary", message)
+nyt_fb$obama <- grepl("barack|obama", message)
+nyt_fb$terror <- grepl("terror|isis|isil|qaeda", message)
+nyt_fb$kill <- grepl("kill|murder|shot", message)
+nyt_fb$debate <- grepl("debat", message)
 
 # Fitting a logistic model
-glm.viral <- glm(as.factor(viral) ~ month + hour  + 
+glm.viral <- glm(as.factor(viral) ~ month + hour + 
                    israel + trump + hillary + obama + terror + kill + 
-                   debate , data=nyt.fb, family=binomial(logit))
+                   debate, 
+                 data = nyt_fb, 
+                 family = binomial(logit)
+                 )
 
 
-tab <- table(round(glm.viral$fitted.values),nyt.fb$viral)
+tab <- table(round(glm.viral$fitted.values), nyt_fb$viral)
 
 # Accuracy of Logistic Regression
 sum(diag(tab))/sum(tab)
 
-# In this case, SVM had a higher level of accuracy. Why might that be? 
+# In this case, SVM had a higher level of accuracy than logit. Why might that be? 
 
