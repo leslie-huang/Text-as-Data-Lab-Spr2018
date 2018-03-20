@@ -79,7 +79,7 @@ container <- create_container(bullying_dfm,
 
 # Train the model
 ?cross_validate
-cv.svm <- cross_validate(container, nfold = 2, algorithm = 'SVM', kernel = 'linear')
+cv.svm <- cross_validate(container, nfold = 4, algorithm = 'SVM', kernel = 'linear')
 
 ## Comments:
 # linear vs radial kernels, radial can overfit
@@ -135,6 +135,12 @@ container      <- create_container(bullying_dfm,
                                    trainSize = 1:training_break,
                                    testSize = (training_break+1):nrow(tweets_df), 
                                    virgin = FALSE
+)
+
+cv.svm <- cross_validate(container, 
+                         nfold = 4, 
+                         algorithm = 'SVM', 
+                         kernel = 'radial'
 )
 
 cv.svm$meanAccuracy
