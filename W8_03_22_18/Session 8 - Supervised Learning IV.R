@@ -9,9 +9,9 @@ rm(list = ls())
 # Setting WD
 setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W8_03_22_18/")
 
-# 1 Questions from last time ...
+# Questions from last time ...
 
-# 1.1 Tuning hyperparameters? ** Beyond the scope of this class **
+# 1 Tuning hyperparameters? ** Beyond the scope of this class **
 
 # install.packages("e1071")
 library(e1071)
@@ -20,20 +20,25 @@ library(e1071)
 
 # NB: e1071 uses libsvm(), a Python library. However, sklearn has a great SVM implementation!
 
-# 1.2 SVM with tf-idf or raw term frequencies: which has better performance?
+
+# 2 SVM with tf-idf or raw term frequencies: which has better performance?
 
 # We might expect that tf-idf is better because it upweights terms that discriminate more between documents 
 
-# 1.2.1 Modified example from https://rpubs.com/bmcole/reuters-text-categorization
+# 2.1 Using caret to compare radial/linear SVM over tf/tf-idf inputs
+
+# Modified example from https://rpubs.com/bmcole/reuters-text-categorization
+
 library(tm)
 library(caret)
 
-# Data credit: https://www.cs.umb.edu/~smimarog/textmining/datasets/
 
-# 1.2.2 Wrangle in the data
+# 2.2 Wrangle in the data
 
 r8train <- read.table("r8-train-all-terms.txt", header=FALSE, sep='\t')
 r8test <- read.table("r8-test-all-terms.txt", header=FALSE, sep='\t')
+# Data credit: https://www.cs.umb.edu/~smimarog/textmining/datasets/
+
 
 # rename variables
 names(r8train) <- c("Class", "docText")
@@ -64,7 +69,8 @@ table(merged$Class, merged$train_test)
 
 rownames(merged) <- NULL # reset rownames to numbers
 
-# 1.2.2 Create corpus, preprocess, DTM
+
+# 2.3 Create corpus, preprocess, DTM
 sourceData <- VectorSource(merged$docText)
 
 # create the corpus
@@ -83,7 +89,8 @@ tdm <- DocumentTermMatrix(corpus)
 # create tf-idf weighted version of term document matrix
 weightedtdm <- weightTfIdf(tdm)
 
-# 1.2.4 TDM --> DF for test/training 
+
+# 2.4 TDM --> DF for test/training 
 
 # convert tdm's into data frames 
 tdm_df <- as.data.frame(as.matrix(tdm))
@@ -103,7 +110,7 @@ weightedTDMtrain$doc.class <- merged$Class[which(merged$train_test == "train")]
 weightedTDMtest$doc.class  <- merged$Class[which(merged$train_test == "test")]
 
 
-# 1.2.5 Linear SVM + tf-idf
+# 2.5 Linear SVM + tf-idf
 
 # set resampling scheme: 10-fold cross-validation, 3 times
 ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
@@ -114,7 +121,7 @@ ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 set.seed(100)
 svm.tfidf.linear  <- train(doc.class ~ . , data = weightedTDMtrain, trControl = ctrl, method = "svmLinear")
 
-# 1.2.6 Radial SVM + tf-idf
+# 2.6 Radial SVM + tf-idf
 
 # tuning parameters: sigma, C 
 svm.tfidf.radial  <- train(doc.class ~ . , data=weightedTDMtrain, trControl = ctrl, method = "svmRadial")
@@ -123,13 +130,13 @@ svm.tfidf.radial  <- train(doc.class ~ . , data=weightedTDMtrain, trControl = ct
 svm.tfidf.linear.predict <- predict(svm.tfidf.linear,newdata = weightedTDMtest)
 svm.tfidf.radial.predict <- predict(svm.tfidf.radial,newdata = weightedTDMtest)
 
-# 1.2.7 Linear SVM + unweighted dfm
 
+# 2.7 Linear SVM + unweighted dfm
  
 # tuning parameters: C 
 svm.linear  <- train(doc.class ~ . , data=tdmTrain, trControl = ctrl, method = "svmLinear")
 
-# 1.2.8 Radial SVM + unweighted
+# 2.8 Radial SVM + unweighted
 
 # tuning parameters: sigma, C 
 set.seed(100)
@@ -139,7 +146,8 @@ svm.radial  <- train(doc.class ~ . , data=tdmTrain, trControl = ctrl, method = "
 svm.linear.predict <- predict(svm.linear,newdata = tdmTest)
 svm.radial.predict <- predict(svm.radial,newdata = tdmTest)
 
-# 1.2.9 Comparing the results
+
+# 2.9 Performance
 
 # Weighted:
 
@@ -173,28 +181,28 @@ svm.radial$bestTune # final tuning parameter
 svm.radial$metric # metric used to select optimal model
 
 
-# 2 KNN -- also from https://rpubs.com/bmcole/reuters-text-categorization
+# 3 KNN -- also from https://rpubs.com/bmcole/reuters-text-categorization
 
 # set resampling scheme
-ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+ctrl_knn <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 
-# 2.1 fit a kNN model using the weighted (td-idf) term document matrix
+# 3.1 fit a kNN model using the weighted (td-idf) term document matrix
 
 # tuning parameter: K
-knn.tfidf <- train(doc.class ~ ., data = weightedTDMtrain, method = "knn", trControl = ctrl)
+knn.tfidf <- train(doc.class ~ ., data = weightedTDMtrain, method = "knn", trControl = ctrl_knn)
 
 # predict on test data
 knn.tfidf.predict <- predict(knn.tfidf, newdata = weightedTDMtest)
 
-# 2.2 fit a kNN model using the unweighted TDM
+# 3.2 fit a kNN model using the unweighted TDM
 # tuning parameter: K
 
-knn <- train(doc.class ~ ., data = tdmTrain, method = "knn", trControl = ctrl)
+knn <- train(doc.class ~ ., data = tdmTrain, method = "knn", trControl = ctrl_knn)
 
 # predict on test data
 knn.predict <- predict(knn, newdata = tdmTest)
 
-# 2.3 Performance
+# 3.3 Performance
 
 knn.tfidf
 
@@ -214,3 +222,4 @@ plot(knn)
 knn$results # error rate and values of tuning parameter
 
 knn$bestTune # final tuning parameter
+
