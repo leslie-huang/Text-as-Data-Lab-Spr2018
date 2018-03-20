@@ -3,11 +3,11 @@
 # Date: 3/22/2018
 # Recitation 8: Supervised Learning IV
 
-# Clear Global Environment
+# Setup
 rm(list = ls())
-
-# Setting WD
+set.seed(100)
 setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W8_03_22_18/")
+
 
 # Questions from last time ...
 
@@ -118,7 +118,9 @@ ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 # SVM using the weighted (td-idf) term document matrix
 # kernel: linear 
 # tuning parameters: C 
-set.seed(100)
+
+load("svm_knn_workspace.RData") # this will take too long to run here!
+
 svm.tfidf.linear  <- train(doc.class ~ . , data = weightedTDMtrain, trControl = ctrl, method = "svmLinear")
 
 # 2.6 Radial SVM + tf-idf
@@ -223,3 +225,4 @@ knn$results # error rate and values of tuning parameter
 
 knn$bestTune # final tuning parameter
 
+save.image("svm_knn_workspace.RData")
