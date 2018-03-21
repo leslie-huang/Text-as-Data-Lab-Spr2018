@@ -11,23 +11,29 @@ setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W8_03_22_18/")
 
 # Questions from last time ...
 
-# 1 Tuning hyperparameters? ** Beyond the scope of this class **
+# 1 Tuning hyperparameters for SVM? ** Beyond the scope of this class **
 
 # install.packages("e1071")
 library(e1071)
 
 # Simple example here: https://rischanlab.github.io/SVM.html
 
-# NB: e1071 uses libsvm(), a Python library. However, sklearn has a great SVM implementation!
+# Many other machine learning tools are available in that library as well.
+
+# NB: e1071 uses libsvm(), a Python library. 
+# However, if you're using Python, sklearn has a great SVM implementation!
 
 
 # 2 SVM with tf-idf or raw term frequencies: which has better performance?
 
 # We might expect that tf-idf is better because it upweights terms that discriminate more between documents 
 
-# 2.1 Using caret to compare radial/linear SVM over tf/tf-idf inputs
+# 2.1 Compare radial/linear SVM over tf/tf-idf inputs
 
 # Modified example from https://rpubs.com/bmcole/reuters-text-categorization
+
+# Another great library!
+# install.packages("caret")
 
 library(tm)
 library(caret)
