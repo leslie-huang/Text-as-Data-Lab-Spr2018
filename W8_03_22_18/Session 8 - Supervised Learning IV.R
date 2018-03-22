@@ -20,26 +20,82 @@ library(e1071)
 
 # Many other machine learning tools are available in that library as well.
 
-# NB: e1071 uses libsvm(), a Python library. 
+# NB: e1071 uses libsvm(), a Python library. And RTextTools, the package from last time, uses e1071.
 # However, if you're using Python, sklearn has a great SVM implementation!
 
 
-# 2 SVM with tf-idf or raw term frequencies: which has better performance?
+# 2 More SVM
+
+library(RTextTools)
+library(tm)
+library(quanteda)
+library(quanteda.corpora)
+
+# 2.1 
+
+data("data_corpus_ukmanifestos")
+manifesto_corpus <- corpus(data_corpus_ukmanifestos)
+
+# SVM is very difficult with more than 2 classes, so let's subset to Labour and Conservative only
+manifesto_corpus <- corpus_subset(manifesto_corpus, Party == "Lab" | Party == "Con")
+
+# Class labels are the party labels
+manifesto_labels <- docvars(manifesto_corpus, "Party")
+
+manifesto_dfm <- dfm(manifesto_corpus)
+
+manifesto_mat <- quanteda::convert(manifesto_dfm, "matrix") # convert to matrix format
+
+# Now we're going to do 1-fold cross-validation... "by hand" (without using the cross_validate function)
+
+# Create containers
+training_break <- floor( 0.9 * length(manifesto_labels) )
+
+training_manifesto_dtm <- manifesto_mat[1:training_break, ]
+test_manifesto_dtm <- manifesto_mat[(training_break + 1 ): length(manifesto_labels), ]
+
+train_manifesto_container <- create_container(training_manifesto_dtm, 
+                                              manifesto_labels[1:training_break], 
+                                              trainSize = 1:nrow(training_manifesto_dtm), 
+                                              virgin = FALSE
+                                              )
+
+test_manifesto_container <- create_container(test_manifesto_dtm, 
+                                             manifesto_labels[training_break + 1 : length(manifesto_labels)], 
+                                             trainSize = 1:nrow(test_manifesto_dtm), 
+                                             virgin = FALSE
+                                             )
+
+# Train a model on the training data
+
+manifesto_train_svm <- train_model(train_manifesto_container, "SVM", kernel = "linear")
+
+# Predict the test data
+classify_model(test_manifesto_container, manifesto_train_svm)
+
+# Accuracy?
+
+manifesto_labels[(training_break+1):length(manifesto_labels)]
+
+# 2/4 correct... Not great!
+
+
+
+# 3 SVM with tf-idf or raw term frequencies: which has better performance?
 
 # We might expect that tf-idf is better because it upweights terms that discriminate more between documents 
 
-# 2.1 Compare radial/linear SVM over tf/tf-idf inputs
+# 3.1 Compare radial/linear SVM over tf/tf-idf inputs
 
 # Modified example from https://rpubs.com/bmcole/reuters-text-categorization
 
 # Another great library!
 # install.packages("caret")
 
-library(tm)
 library(caret)
 
 
-# 2.2 Wrangle in the data
+# 3.2 Wrangle in the data
 
 r8train <- read.table("r8-train-all-terms.txt", header=FALSE, sep='\t')
 r8test <- read.table("r8-test-all-terms.txt", header=FALSE, sep='\t')
@@ -76,7 +132,7 @@ table(merged$Class, merged$train_test)
 rownames(merged) <- NULL # reset rownames to numbers
 
 
-# 2.3 Create corpus, preprocess, DTM
+# 3.3 Create corpus, preprocess, DTM
 sourceData <- VectorSource(merged$docText)
 
 # create the corpus
@@ -96,7 +152,7 @@ tdm <- DocumentTermMatrix(corpus)
 weightedtdm <- weightTfIdf(tdm)
 
 
-# 2.4 TDM --> DF for test/training 
+# 3.4 TDM --> DF for test/training 
 
 # convert tdm's into data frames 
 tdm_df <- as.data.frame(as.matrix(tdm))
@@ -116,7 +172,7 @@ weightedTDMtrain$doc.class <- merged$Class[which(merged$train_test == "train")]
 weightedTDMtest$doc.class  <- merged$Class[which(merged$train_test == "test")]
 
 
-# 2.5 Linear SVM + tf-idf
+# 3.5 Linear SVM + tf-idf
 
 # set resampling scheme: 10-fold cross-validation, 3 times
 ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
@@ -129,7 +185,7 @@ load("svm_knn_workspace.RData") # this will take too long to run here!
 
 svm.tfidf.linear  <- train(doc.class ~ . , data = weightedTDMtrain, trControl = ctrl, method = "svmLinear")
 
-# 2.6 Radial SVM + tf-idf
+# 3.6 Radial SVM + tf-idf
 
 # tuning parameters: sigma, C 
 svm.tfidf.radial  <- train(doc.class ~ . , data=weightedTDMtrain, trControl = ctrl, method = "svmRadial")
@@ -139,12 +195,12 @@ svm.tfidf.linear.predict <- predict(svm.tfidf.linear,newdata = weightedTDMtest)
 svm.tfidf.radial.predict <- predict(svm.tfidf.radial,newdata = weightedTDMtest)
 
 
-# 2.7 Linear SVM + unweighted dfm
+# 3.7 Linear SVM + unweighted dfm
  
 # tuning parameters: C 
 svm.linear  <- train(doc.class ~ . , data=tdmTrain, trControl = ctrl, method = "svmLinear")
 
-# 2.8 Radial SVM + unweighted
+# 3.8 Radial SVM + unweighted
 
 # tuning parameters: sigma, C 
 set.seed(100)
@@ -155,7 +211,7 @@ svm.linear.predict <- predict(svm.linear,newdata = tdmTest)
 svm.radial.predict <- predict(svm.radial,newdata = tdmTest)
 
 
-# 2.9 Performance
+# 3.9 Performance
 
 # Weighted:
 
@@ -189,12 +245,12 @@ svm.radial$bestTune # final tuning parameter
 svm.radial$metric # metric used to select optimal model
 
 
-# 3 KNN -- also from https://rpubs.com/bmcole/reuters-text-categorization
+# 4 KNN -- also from https://rpubs.com/bmcole/reuters-text-categorization
 
 # set resampling scheme
 ctrl_knn <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 
-# 3.1 fit a kNN model using the weighted (td-idf) term document matrix
+# 4.1 fit a kNN model using the weighted (td-idf) term document matrix
 
 # tuning parameter: K
 knn.tfidf <- train(doc.class ~ ., data = weightedTDMtrain, method = "knn", trControl = ctrl_knn)
@@ -202,7 +258,7 @@ knn.tfidf <- train(doc.class ~ ., data = weightedTDMtrain, method = "knn", trCon
 # predict on test data
 knn.tfidf.predict <- predict(knn.tfidf, newdata = weightedTDMtest)
 
-# 3.2 fit a kNN model using the unweighted TDM
+# 4.2 fit a kNN model using the unweighted TDM
 # tuning parameter: K
 
 knn <- train(doc.class ~ ., data = tdmTrain, method = "knn", trControl = ctrl_knn)
@@ -210,7 +266,7 @@ knn <- train(doc.class ~ ., data = tdmTrain, method = "knn", trControl = ctrl_kn
 # predict on test data
 knn.predict <- predict(knn, newdata = tdmTest)
 
-# 3.3 Performance
+# 4.3 Performance
 
 knn.tfidf
 
