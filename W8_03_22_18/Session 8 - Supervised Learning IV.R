@@ -240,9 +240,9 @@ confusionMatrix(svm.tfidf.radial.predict, weightedTDMtest$doc.class) # radial ke
 # print various info about parameters, etc. used in the model with highest accuracy
 svm.radial$results # error rate and values of tuning parameter
 
-svm.radial$bestTune # final tuning parameter
+svm.linear$bestTune # final tuning parameter
 
-svm.radial$metric # metric used to select optimal model
+svm.linear$metric # metric used to select optimal model
 
 
 # 4 KNN -- also from https://rpubs.com/bmcole/reuters-text-categorization
