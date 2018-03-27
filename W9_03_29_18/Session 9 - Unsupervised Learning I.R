@@ -32,7 +32,7 @@ SOTU_dfm@Dimnames$docs
 SOTU_tdm_lsa <- lsa(t(SOTU_dfm))
 
 # Check to see what a good number of dimensions is
-SOTU_tdm_lsa_svd<-svd(SOTU_tdm_lsa$tk)$d
+SOTU_tdm_lsa_svd <- svd(SOTU_tdm_lsa$tk)$d
 
 dimcalc_share(share = 0.5)(SOTU_tdm_lsa_svd)
 
@@ -43,31 +43,31 @@ plot(SOTU_tdm_lsa_svd)
 dimcalc_share(share = 0.9)(SOTU_tdm_lsa_svd)
 
 # Lecture example uses 5
-lsa_fit <- lsa(t(SOTU_dfm), 5 )
+lsa_fit_5 <- lsa(t(SOTU_dfm), 5 )
 
-lsa_fit_mat <- t(as.textmatrix(lsa_fit) )
+lsa_fit_mat_5 <- t(as.textmatrix(lsa_fit_5) )
 
 
 # Compare features for a few speeches
 
 SOTU_dfm@Dimnames$docs[9]
 topfeatures(SOTU_dfm[9,])
-sort(lsa_fit_mat[9,], decreasing=T)[1:10]
+sort(lsa_fit_mat_5[9,], decreasing=T)[1:10]
 
 SOTU_dfm@Dimnames$docs[55]
 topfeatures(SOTU_dfm[55,])
-sort(lsa_fit_mat[55,], decreasing=T)[1:10]
+sort(lsa_fit_mat_5[55,], decreasing=T)[1:10]
 
 
 SOTU_dfm@Dimnames$docs[72]
 topfeatures(SOTU_dfm[72,])
-sort(lsa_fit_mat[72,], decreasing=T)[1:10]
+sort(lsa_fit_mat_5[72,], decreasing=T)[1:10]
 
-# Associate: a method to identify words that are most similar to other words using a LSA
+# associate(): a method to identify words that are most similar to other words using a LSA
 
-lsa_fit<-lsa(t(SOTU_dfm), 3 )
+lsa_fit_3 <- lsa(t(SOTU_dfm), 3 )
 
-lsa_fit_mat_3 <- as.textmatrix(lsa_fit) 
+lsa_fit_mat_3 <- as.textmatrix(lsa_fit_3) 
 
 china <- associate(lsa_fit_mat_3, "china", "cosine", threshold = .7)
 china[1:10]
