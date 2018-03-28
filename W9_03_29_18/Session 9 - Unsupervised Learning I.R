@@ -2,7 +2,6 @@
 # Course: Text as Data
 # Date: 3/29/2018
 # Recitation 9: Unsupervised Learning I
-# Credit: Materials adapted from Patrick Chester
 
 # Set up workspace
 rm(list = ls())
@@ -16,15 +15,56 @@ library(quanteda)
 library(quanteda.corpora)
 library(lsa)
 
-## 1 Latent Semantic Analysis (LSA)
+## 1 PCA
 
+# 1.1 Two functions in base R:
+
+?prcomp # SVD on the (centered) input data
+?princomp # eigendecomposition on the covariance matrix of the input data -- can also use option for covariance matrix 
+
+# Remember to center your data! -- use scale() on your matrix beforehand, or the option in prcomp()
+# And don't have any missing values!
+
+install.packages("factoextra")
+library(factoextra) # makes it easy to work with PCA
+
+# 1.2 Example
 data("data_corpus_sotu")
 
 SOTU_dfm <- dfm(data_corpus_sotu[145:223,], 
                 stem = T, 
                 remove_punct = T, 
                 remove = stopwords("english")
-                )
+)
+
+SOTU_mat <- convert(SOTU_dfm, to = "matrix") # convert to matrix
+
+SOTU_pca <- prcomp(SOTU_mat, center = TRUE, scale = TRUE)
+
+
+# Elbow plot
+plot(SOTU_pca, type = "l")
+
+# How much variance do the first few PCs account for?
+summary(SOTU_pca)
+
+# Use the factoextra functions to help extract our results
+
+# Eigenvalues
+head(get_eigenvalue(SOTU_pca))
+
+fviz_eig(SOTU_pca, addlabels = TRUE, ylim = c(0, 50))
+
+# These results are not great -- why?
+
+# Tutorial from factoextra author about how to use his package to explore and visualize PCA results: http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/112-pca-principal-component-analysis-essentials/
+
+# See here for visualizing PCA with the ggbiplot library: https://www.r-bloggers.com/computing-and-visualizing-pca-in-r/
+
+
+## 2 Latent Semantic Analysis (LSA)
+
+# Let's keep using the SOTU data from before
 
 SOTU_dfm@Dimnames$docs
 
@@ -42,7 +82,7 @@ plot(SOTU_tdm_lsa_svd)
 # By default, share is set to .5; let's try .9
 dimcalc_share(share = 0.9)(SOTU_tdm_lsa_svd)
 
-# Lecture example uses 5
+# Lecture example uses dims = 5
 lsa_fit_5 <- lsa(t(SOTU_dfm), 5 )
 
 lsa_fit_mat_5 <- t(as.textmatrix(lsa_fit_5) )
