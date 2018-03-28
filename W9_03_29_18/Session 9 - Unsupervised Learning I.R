@@ -10,10 +10,10 @@ setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W9_03_29_18/")
 
 # Loading packages
 #install.packages("lsa")
+#install.packages("factoextra")
 
 library(quanteda)
 library(quanteda.corpora)
-library(lsa)
 
 ## 1 PCA
 
@@ -25,7 +25,6 @@ library(lsa)
 # Remember to center your data! -- use scale() on your matrix beforehand, or the option in prcomp()
 # And don't have any missing values!
 
-install.packages("factoextra")
 library(factoextra) # makes it easy to work with PCA
 
 # 1.2 Example
@@ -41,85 +40,104 @@ SOTU_mat <- convert(SOTU_dfm, to = "matrix") # convert to matrix
 
 SOTU_pca <- prcomp(SOTU_mat, center = TRUE, scale = TRUE)
 
-
 # Elbow plot
 plot(SOTU_pca, type = "l")
 
 # How much variance do the first few PCs account for?
 summary(SOTU_pca)
 
-# Use the factoextra functions to help extract our results
-
 # Eigenvalues
 head(get_eigenvalue(SOTU_pca))
 
 fviz_eig(SOTU_pca, addlabels = TRUE, ylim = c(0, 50))
 
-# These results are not great -- why?
+# Loadings for each variable: columns are eigenvectors
+SOTU_pca$rotation[1:10, 1:5]
+
+# Value of the rotated data: your "new" data
+View(SOTU_pca$x)
+
+# Visualization resources:
 
 # Tutorial from factoextra author about how to use his package to explore and visualize PCA results: http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/112-pca-principal-component-analysis-essentials/
 
 # See here for visualizing PCA with the ggbiplot library: https://www.r-bloggers.com/computing-and-visualizing-pca-in-r/
 
 
-## 2 Latent Semantic Analysis (LSA)
+## 2 Latent Semantic Analysis (LSA) aka Latent Semantic Indexing (LSI)
+
+library(lsa)
 
 # Let's keep using the SOTU data from before
 
-SOTU_dfm@Dimnames$docs
+# 2.1 Create LSA weights using TDM
+SOTU_lsa_auto <- lsa(t(SOTU_dfm))
 
-# Create LSA weights using TDM
-SOTU_tdm_lsa <- lsa(t(SOTU_dfm))
+# Note: We are *not* doing the local/global weighting in this example!
+?gw_idf
+# From lecture
+# Local weight function: log(tf_ij + 1)
+# global weight function: 1 + sum( (p_ij * log(p_ij) ) / log(n) ) where p_ij = tf_ij/gf_i
 
-# Check to see what a good number of dimensions is
-SOTU_tdm_lsa_svd <- svd(SOTU_tdm_lsa$tk)$d
 
-dimcalc_share(share = 0.5)(SOTU_tdm_lsa_svd)
+# 2.2 Check to see what a good number of dimensions is
+?dimcalc_share
 
-plot(SOTU_tdm_lsa_svd)
+SOTU_lsa_auto_svd <- svd(SOTU_lsa_auto$tk)$d
+
+dimcalc_share(share = 0.5)(SOTU_lsa_auto)
+
+plot(SOTU_lsa_auto_svd)
 
 
 # By default, share is set to .5; let's try .9
+# share = fraction of the sum of the selected singular values to the sum of all singular values
 dimcalc_share(share = 0.9)(SOTU_tdm_lsa_svd)
 
 # Lecture example uses dims = 5
-lsa_fit_5 <- lsa(t(SOTU_dfm), 5 )
+SOTU_lsa_5 <- lsa(t(SOTU_dfm), 5 )
 
-lsa_fit_mat_5 <- t(as.textmatrix(lsa_fit_5) )
+SOTU_lsa_5_mat <- t(as.textmatrix(SOTU_lsa_5) )
 
 
-# Compare features for a few speeches
+# 2.3 Compare features for a few speeches
 
 SOTU_dfm@Dimnames$docs[9]
 topfeatures(SOTU_dfm[9,])
-sort(lsa_fit_mat_5[9,], decreasing=T)[1:10]
 
+# With 5 dims:
+sort(SOTU_lsa_5_mat[9,], decreasing=T)[1:10]
+
+# With auto (14) dims:
+sort(t(as.textmatrix(SOTU_lsa_auto))[9, ], decreasing = T)[1:10]
+
+# Another example:
 SOTU_dfm@Dimnames$docs[55]
 topfeatures(SOTU_dfm[55,])
-sort(lsa_fit_mat_5[55,], decreasing=T)[1:10]
 
+sort(SOTU_lsa_5_mat[55,], decreasing=T)[1:10]
+sort(t(as.textmatrix(SOTU_lsa_auto))[55, ], decreasing = T)[1:10]
 
-SOTU_dfm@Dimnames$docs[72]
-topfeatures(SOTU_dfm[72,])
-sort(lsa_fit_mat_5[72,], decreasing=T)[1:10]
 
 # associate(): a method to identify words that are most similar to other words using a LSA
+?associate
+# uses cosine similarity between input term and other terms
 
-lsa_fit_3 <- lsa(t(SOTU_dfm), 3 )
+SOTU_lsa_3 <- lsa(t(SOTU_dfm), 3 )
 
-lsa_fit_mat_3 <- as.textmatrix(lsa_fit_3) 
+SOTU_lsa_3_mat <- as.textmatrix(SOTU_lsa_3) 
 
-china <- associate(lsa_fit_mat_3, "china", "cosine", threshold = .7)
+china <- associate(SOTU_lsa_3_mat, "china", "cosine", threshold = .7)
 china[1:10]
 
 
-oil <- associate(lsa_fit_mat_3, "oil", "cosine", threshold = .7)
+oil <- associate(SOTU_lsa_3_mat, "oil", "cosine", threshold = .7)
 oil[1:10]
 
-america<-associate(lsa_fit_mat_3, "america", "cosine", threshold = .7)
+america <- associate(SOTU_lsa_3_mat, "america", "cosine", threshold = .7)
 america[1:10]
 
-health<-associate(lsa_fit_mat_3, "health", "cosine", threshold = .7)
+health <- associate(SOTU_lsa_3_mat, "health", "cosine", threshold = .7)
 health[1:10]
 
 
@@ -162,22 +180,24 @@ lab_con_dfm <- dfm(man_df$text,
 # 2.2 fit wordfish
 
 # Setting the anchor on parties
-df_fit <- textmodel_wordfish(lab_con_dfm, c(1,24))
+manifestos_fish <- textmodel_wordfish(lab_con_dfm, c(1,24)) # second parameter corresponds to index texts
 
 # Plot of document positions
-plot(year[1:23], df_fit$theta[1:23]) # These are the conservative manifestos
-points(year[24:46], df_fit$theta[24:46], pch = 8) # These are the Labour manifestos
+plot(year[1:23], manifestos_fish$theta[1:23]) # These are the conservative manifestos
+points(year[24:46], manifestos_fish$theta[24:46], pch = 8) # These are the Labour manifestos
 
-plot(as.factor(party), df_fit$theta)
+plot(as.factor(party), manifestos_fish$theta)
 
 # most important features--word fixed effects
-words<-df_fit$psi # values
-names(words) <- df_fit$features # the words
+words <- manifestos_fish$psi # values
+names(words) <- manifestos_fish$features # the words
 
 sort(words)[1:50]
 
 sort(words, decreasing=T)[1:50]
 
 # Guitar plot
-weights<-df_fit$beta
+weights <- manifestos_fish$beta
 plot(weights, words)
+
+# also check out wordshoal!
