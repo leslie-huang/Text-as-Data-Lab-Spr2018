@@ -83,16 +83,16 @@ SOTU_lsa_auto <- lsa(t(SOTU_dfm))
 # 2.2 Check to see what a good number of dimensions is
 ?dimcalc_share
 
+# lsa_obj$tk -- truncated matrix Tk from term vector matrix T (constituting left singular vectors from the SVD of the original matrix)
+# svd(matrix)$d -- singular values of svd(matrix)
 SOTU_lsa_auto_svd <- svd(SOTU_lsa_auto$tk)$d
 
-dimcalc_share(share = 0.5)(SOTU_lsa_auto)
-
-plot(SOTU_lsa_auto_svd)
+dimcalc_share(share = 0.5)(SOTU_lsa_auto_svd)
 
 
 # By default, share is set to .5; let's try .9
 # share = fraction of the sum of the selected singular values over the sum of all singular values
-dimcalc_share(share = 0.9)(SOTU_tdm_lsa_svd)
+dimcalc_share(share = 0.9)(SOTU_lsa_auto_svd)
 
 # Lecture example uses dims = 5
 SOTU_lsa_5 <- lsa(t(SOTU_dfm), 5 )
