@@ -91,7 +91,7 @@ plot(SOTU_lsa_auto_svd)
 
 
 # By default, share is set to .5; let's try .9
-# share = fraction of the sum of the selected singular values to the sum of all singular values
+# share = fraction of the sum of the selected singular values over the sum of all singular values
 dimcalc_share(share = 0.9)(SOTU_tdm_lsa_svd)
 
 # Lecture example uses dims = 5
