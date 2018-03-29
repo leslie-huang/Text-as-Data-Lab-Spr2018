@@ -51,10 +51,10 @@ head(get_eigenvalue(SOTU_pca))
 
 fviz_eig(SOTU_pca, addlabels = TRUE, ylim = c(0, 50))
 
-# Loadings for each variable: columns are eigenvectors
+# Loadings for each variable: columns contain the eigenvectors
 SOTU_pca$rotation[1:10, 1:5]
 
-# Value of the rotated data: your "new" data
+# Value of the rotated data: your "new", dimensionality reduced data
 View(SOTU_pca$x)
 
 # Visualization resources:
@@ -140,6 +140,7 @@ america[1:10]
 health <- associate(SOTU_lsa_3_mat, "health", "cosine", threshold = .7)
 health[1:10]
 
+# Keep this in mind when we do topic models!
 
 
 ## 2 WORDFISH
@@ -198,6 +199,7 @@ sort(words, decreasing=T)[1:50]
 
 # Guitar plot
 weights <- manifestos_fish$beta
+
 plot(weights, words)
 
 # also check out wordshoal!
