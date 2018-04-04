@@ -180,7 +180,7 @@ lab_con_dfm <- dfm(man_df$text,
 
 # 2.2 fit wordfish
 
-# Setting the anchor on parties
+# Setting the index on parties
 manifestos_fish <- textmodel_wordfish(lab_con_dfm, c(1,24)) # second parameter corresponds to index texts
 
 # Plot of document positions
