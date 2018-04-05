@@ -234,6 +234,7 @@ mat &lt;- as.matrix(dfm)
 
 rownames(mat) &lt;- names(df)
 
+# DFM
 mat</code></pre>
 <pre><code>##          features
 ## docs      immigration voter culture help reform women assimilate win
@@ -265,6 +266,23 @@ mat</code></pre>
 ##   macron3       1     1      0      0      0
 ##   lepen3        0     0      0      0      0
 ##   macron4       0     0      1      1      1</code></pre>
+<pre class="r"><code># But actually we can aggregate by author
+agg_mat &lt;- rbind(colSums(mat[c(2:3,7), ]), colSums(mat[c(4:6,8), ]) )
+rownames(agg_mat) &lt;- c(&quot;lepen&quot;, &quot;macron&quot;)          
+agg_mat</code></pre>
+<pre><code>##        immigration voter culture help reform women assimilate win economy
+## lepen            2     2       2    1      0     1          1   1       2
+## macron           1     1       1    2      1     1          0   1       1
+##        president afraid education union hope neighbourhood success elect
+## lepen          2      1         0     0    0             0       0     0
+## macron         1      0         1     2    1             1       1     1
+##        europe german french
+## lepen       0      0      0
+## macron      1      1      1</code></pre>
+<pre class="r"><code># num words used by each author
+rowSums(agg_mat)</code></pre>
+<pre><code>##  lepen macron 
+##     15     20</code></pre>
 <div id="a-nb-wo-smoothing" class="section level3">
 <h3>(a) NB w/o smoothing</h3>
 <pre class="r"><code>macron_prior &lt;- 4/7
@@ -288,6 +306,21 @@ log(lepen_pr)</code></pre>
 <pre class="r"><code># Vocabulary size:
 length(colnames(mat))</code></pre>
 <pre><code>## [1] 20</code></pre>
+<pre class="r"><code># Smoothed counts:
+(agg_mat_smoothed &lt;- agg_mat + 1)</code></pre>
+<pre><code>##        immigration voter culture help reform women assimilate win economy
+## lepen            3     3       3    2      1     2          2   2       3
+## macron           2     2       2    3      2     2          1   2       2
+##        president afraid education union hope neighbourhood success elect
+## lepen          3      2         1     1    1             1       1     1
+## macron         2      1         2     3    2             2       2     2
+##        europe german french
+## lepen       1      1      1
+## macron      2      2      2</code></pre>
+<pre class="r"><code># num words used by each author
+rowSums(agg_mat_smoothed)</code></pre>
+<pre><code>##  lepen macron 
+##     35     40</code></pre>
 <pre class="r"><code># Macron probability:
 macron_prior * (2/40) * (2/40) * (2/40) * (3/40) * (2/40)</code></pre>
 <pre><code>## [1] 2.678571e-07</code></pre>
