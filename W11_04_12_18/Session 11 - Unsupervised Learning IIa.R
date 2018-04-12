@@ -53,7 +53,7 @@ k_optimize_blm <- FindTopicsNumber(
   verbose = TRUE
 )
 
-FindTopicsNumber_plot(result)
+FindTopicsNumber_plot(k_optimize_blm)
 
 # Where do these metrics come from? 
 
@@ -75,7 +75,7 @@ blm_tm <- LDA(blm_dfm, k = k, method = "Gibbs",  control = list(seed = 1234))
 # Other parameters that we do not use here (because they increase the time the model takes) can be passed to the control parameter
 ?`LDAcontrol-class`
 # iter : num iterations
-# thin : number of iterations to return (<= iter )
+# thin : every thin iteration is returned for iter iterations
 # burnin : number of initial iterations discarded
 
 ## Letter soup

@@ -73,7 +73,7 @@ head(poliblog5k.meta)
 
 head(poliblog5k.voc)
 
-# Fits an STM model with 3 topics 
+# Fits an STM model with 3 topics
 blog_stm <- stm(poliblog5k.docs, poliblog5k.voc, 3,
             prevalence=~rating + s(day), data=poliblog5k.meta)
 
