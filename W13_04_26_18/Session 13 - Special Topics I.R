@@ -3,8 +3,9 @@
 # Date: 4/26/2018
 # Recitation 13: Special Topics I
 
-# First... Assessments!!
-# Link:
+# First... Course Assessments!
+# Link: https://nyu.qualtrics.com/jfe/form/SV_3mGvDResIGQDtGZ
+
 
 setwd("/Users/lesliehuang/Text-as-Data-Lab-Spr2018/W13_04_26_18")
 
@@ -13,7 +14,7 @@ library(bursts)
 library(quanteda)
 library(readtext)
 
-# 1  Loadig bursty function: a repurposing of some guts of kleinberg()
+# 1  Loading bursty function: a repurposing of some guts of kleinberg()
 
 bursty <- function(word = "sioux",DTM, date) {
   word.vec <- DTM[,which(colnames(DTM) == word)]
@@ -60,11 +61,11 @@ manifesto_dfm <- dfm(manifesto_corpus)
 
 # 3.1 Evaluating the burstiness of several key words
 
-bursty("thatcher",manifesto_dfm,docvars(manifesto_corpus)$date)
+bursty("thatcher", manifesto_dfm, docvars(manifesto_corpus)$date)
 
-bursty("churchill",manifesto_dfm,docvars(manifesto_corpus)$date)
+bursty("churchill", manifesto_dfm, docvars(manifesto_corpus)$date)
 
-bursty("argentina",manifesto_dfm,docvars(manifesto_corpus)$date)
+bursty("argentina", manifesto_dfm, docvars(manifesto_corpus)$date)
 
 # Suggestions?
 
@@ -82,7 +83,7 @@ date <- as.Date(as.character(cases$Date[1:365]), "%m-%d-%Y")
 # set as docvars
 docvars(treaties_corpus)$Date <- date
 
-# Create DFM 
+# Create DFM
 treaties_dtm <- dfm(treaties_corpus)
 
 bursty("sioux", treaties_dtm, date)
