@@ -1,7 +1,7 @@
 # TA: Leslie Huang
 # Course: Text as Data
 # Date: 4/26/2018
-# Recitation 13: Special Topics I
+# Recitation 12: Special Topics I
 
 # First... Course Assessments!
 # Link: https://nyu.qualtrics.com/jfe/form/SV_3mGvDResIGQDtGZ
